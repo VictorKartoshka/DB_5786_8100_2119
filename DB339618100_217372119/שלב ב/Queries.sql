@@ -46,27 +46,35 @@ ORDER BY reservation_year DESC, reservation_month DESC;
 --   (one per distinct month) compared to Form A's single pass.
 
 SELECT
-    EXTRACT(YEAR FROM r.datetime)   AS reservation_year,
-    EXTRACT(MONTH FROM r.datetime)  AS reservation_month,
-    COUNT(*)                        AS total_reservations,
-    ROUND(AVG(r.party_size), 1)     AS avg_party_size,
-    SUM(r.party_size)               AS total_guests,
+    r_agg.reservation_year,
+    r_agg.reservation_month,
+    r_agg.total_reservations,
+    r_agg.avg_party_size,
+    r_agg.total_guests,
     (SELECT COUNT(*)
      FROM RESERVATION r2
      WHERE r2.status_ID = (SELECT status_ID FROM STATUS_TYPE WHERE description = 'Completed')
-       AND EXTRACT(YEAR FROM r2.datetime)  = EXTRACT(YEAR FROM r.datetime)
-       AND EXTRACT(MONTH FROM r2.datetime) = EXTRACT(MONTH FROM r.datetime)
+       AND EXTRACT(YEAR FROM r2.datetime)  = r_agg.reservation_year
+       AND EXTRACT(MONTH FROM r2.datetime) = r_agg.reservation_month
     ) AS completed_count,
     (SELECT COUNT(*)
      FROM RESERVATION r2
      WHERE r2.status_ID = (SELECT status_ID FROM STATUS_TYPE WHERE description = 'Cancelled')
-       AND EXTRACT(YEAR FROM r2.datetime)  = EXTRACT(YEAR FROM r.datetime)
-       AND EXTRACT(MONTH FROM r2.datetime) = EXTRACT(MONTH FROM r.datetime)
+       AND EXTRACT(YEAR FROM r2.datetime)  = r_agg.reservation_year
+       AND EXTRACT(MONTH FROM r2.datetime) = r_agg.reservation_month
     ) AS cancelled_count
-FROM RESERVATION r
-GROUP BY
-    EXTRACT(YEAR FROM r.datetime),
-    EXTRACT(MONTH FROM r.datetime)
+FROM (
+    SELECT
+        EXTRACT(YEAR FROM r.datetime)   AS reservation_year,
+        EXTRACT(MONTH FROM r.datetime)  AS reservation_month,
+        COUNT(*)                        AS total_reservations,
+        ROUND(AVG(r.party_size), 1)     AS avg_party_size,
+        SUM(r.party_size)               AS total_guests
+    FROM RESERVATION r
+    GROUP BY
+        EXTRACT(YEAR FROM r.datetime),
+        EXTRACT(MONTH FROM r.datetime)
+) r_agg
 ORDER BY reservation_year DESC, reservation_month DESC;
 
 
