@@ -62,5 +62,11 @@ The primary functionality ensures that restaurant administration can seamlessly 
 
 ## Data Backup and Restoration
 
-![alt text](images/b    .png)
+![alt text](images/backup1.png)
+
+![alt text](images/backup2.png)
+
+![alt text](images/backup3.png)
+
+
  
