@@ -1,0 +1,83 @@
+ALGORITHM ReverseEngineerDatabase
+INPUT: sql_file (A text file containing database creation commands)
+OUTPUT: dsd_model (Data Structure Diagram), erd_model (Entity-Relationship Diagram)
+
+// Phase 1: Data Extraction (Parsing the Schema)
+// In this phase, the algorithm scans the text to identify all objects (tables) 
+// and the rules governing them (constraints).
+
+entities_list <- EMPTY LIST
+constraints_list <- EMPTY LIST
+
+FOR EACH statement IN sql_file:
+    IF statement STARTS WITH "CREATE TABLE":
+        table_name <- EXTRACT table identifier
+        columns <- EXTRACT all data attributes within the table
+        ADD new Entity(table_name, columns) TO entities_list
+    
+    IF statement CONTAINS "ADD CONSTRAINT":
+        constraint_type <- EXTRACT type (e.g., PRIMARY KEY, FOREIGN KEY, UNIQUE)
+        target_table <- EXTRACT table the constraint applies to
+        target_column <- EXTRACT specific column affected
+        ADD new Constraint(target_table, constraint_type, target_column) TO constraints_list
+
+
+// Phase 2: DSD Construction (Structural Mapping)
+// A DSD visually represents the tables and the direct reference lines between them.
+
+dsd_model <- INITIALIZE EMPTY DIAGRAM
+
+FOR EACH entity IN entities_list:
+    dsd_model.DRAW_RECTANGLE(entity.table_name, entity.columns)
+    
+    // Identify the unique identifier for each table
+    pk_constraint <- FIND "PRIMARY KEY" IN constraints_list WHERE target_table EQUALS entity.table_name
+    dsd_model.UNDERLINE_ATTRIBUTE(entity.table_name, pk_constraint.target_column)
+
+FOR EACH constraint IN constraints_list:
+    IF constraint_type EQUALS "FOREIGN KEY":
+        // A foreign key is a reference pointing to another table
+        source_table <- constraint.target_table
+        referenced_table <- EXTRACT destination table from constraint definition
+        dsd_model.DRAW_CONNECTING_LINE(source_table, referenced_table)
+
+
+// Phase 3: ERD Construction (Logical Cardinality Deduction)
+// An ERD expands upon the DSD by defining the mathematical nature of the relationships 
+// (e.g., one-to-one, one-to-many).
+
+erd_model <- COPY(dsd_model)
+
+FOR EACH constraint IN constraints_list:
+    IF constraint_type EQUALS "FOREIGN KEY":
+        source_table <- constraint.target_table
+        fk_column <- constraint.target_column
+        referenced_table <- EXTRACT destination table
+        
+        // Determine Cardinality based on uniqueness
+        is_unique <- CHECK IF constraints_list CONTAINS "UNIQUE" FOR fk_column IN source_table
+        
+        IF is_unique IS TRUE:
+            // The reference is mathematically restricted to a single association
+            erd_model.DEFINE_RELATIONSHIP(source_table, referenced_table, "One-to-One (1:1)")
+        ELSE:
+            // The reference permits multiple associations by default
+            erd_model.DEFINE_RELATIONSHIP(source_table, referenced_table, "One-to-Many (1:N)")
+
+
+// Phase 4: Resolution of Associative Entities (Many-to-Many Mapping)
+// Relational databases cannot process direct many-to-many relationships. 
+// They utilize a "junction table" acting as a bridge. The ERD must abstract this bridge.
+
+FOR EACH entity IN erd_model.entities_list:
+    // Identify junction tables by their specific structural signature
+    IF entity CONTAINS EXACTLY TWO "FOREIGN KEY" constraints AND NO OTHER DATA ATTRIBUTES:
+        table_A <- EXTRACT destination of first foreign key
+        table_B <- EXTRACT destination of second foreign key
+        
+        // Remove the physical bridge and replace it with a conceptual relationship
+        erd_model.REMOVE_RECTANGLE(entity.table_name)
+        erd_model.DEFINE_RELATIONSHIP(table_A, table_B, "Many-to-Many (M:N)")
+
+RETURN dsd_model, erd_model
+END ALGORITHM

@@ -4,19 +4,34 @@ services:
   #---------------
   db:
     image: postgres:17.1
-    container_name: PostgreSQL_DB
+    container_name: Customer_DB
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER_SECRET}
       POSTGRES_PASSWORD: ${DB_PASSWORD_SECRET}
       POSTGRES_DB: ${DB_NAME_SECRET}
     ports:
-      - "5432:5432"
+      - ${DB_PORT_SECRET}:5432
     volumes:
       - ./init-db:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - kids_network
+      - Customer_network
+  db2:
+    image: postgre:17.1
+    container_name: Orders_DB
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB2_USER}
+      POSTGRES_PASSWORD: ${DB2_PASS}
+      POSTGRES_DB: ${DB2_NAME}
+    ports:
+      - ${DB2_PORT}:5432
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - Customer_network
   #----------------
   # pgAdmin
   #---------------- 
@@ -34,12 +49,12 @@ services:
     depends_on:
       - db
     networks:
-      - kids_network
+      - Customer_network
 #----------------
 # Network
 #----------------
 networks:
-  kids_network:
+  Customer_network:
     #    driver: bridge
     #----------------
     # Volumes
