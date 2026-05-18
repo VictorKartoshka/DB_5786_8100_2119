@@ -36,7 +36,6 @@ CREATE TABLE public."ORDER" (
 );
 
 
-ALTER TABLE public."ORDER" OWNER TO admin;
 
 --
 -- Name: bill; Type: TABLE; Schema: public; Owner: admin
@@ -57,7 +56,6 @@ CREATE TABLE public.bill (
 );
 
 
-ALTER TABLE public.bill OWNER TO admin;
 
 --
 -- Name: bill_discount; Type: TABLE; Schema: public; Owner: admin
@@ -70,7 +68,6 @@ CREATE TABLE public.bill_discount (
 );
 
 
-ALTER TABLE public.bill_discount OWNER TO admin;
 
 --
 -- Name: discount; Type: TABLE; Schema: public; Owner: admin
@@ -87,7 +84,6 @@ CREATE TABLE public.discount (
 );
 
 
-ALTER TABLE public.discount OWNER TO admin;
 
 --
 -- Name: order_item; Type: TABLE; Schema: public; Owner: admin
@@ -103,7 +99,6 @@ CREATE TABLE public.order_item (
 );
 
 
-ALTER TABLE public.order_item OWNER TO admin;
 
 --
 -- Name: payment; Type: TABLE; Schema: public; Owner: admin
@@ -120,7 +115,6 @@ CREATE TABLE public.payment (
 );
 
 
-ALTER TABLE public.payment OWNER TO admin;
 
 --
 -- Data for Name: ORDER; Type: TABLE DATA; Schema: public; Owner: admin

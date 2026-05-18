@@ -18,7 +18,7 @@ services:
     networks:
       - Customer_network
   db2:
-    image: postgre:17.1
+    image: postgres:17.1
     container_name: Orders_DB
     restart: always
     environment:
@@ -28,8 +28,8 @@ services:
     ports:
       - ${DB2_PORT}:5432
     volumes:
-      - ./init-db:/docker-entrypoint-initdb.d
-      - postgres_data:/var/lib/postgresql/data
+      - "./DB339618100_217372119/שלב ג:/docker-entrypoint-initdb.d"
+      - postgres_data2:/var/lib/postgresql/data
     networks:
       - Customer_network
   #----------------
@@ -48,6 +48,7 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - db
+      - db2
     networks:
       - Customer_network
 #----------------
@@ -61,4 +62,5 @@ networks:
     #---------------- 
 volumes:
   postgres_data:
+  postgres_data2:
   pgadmin_data:
