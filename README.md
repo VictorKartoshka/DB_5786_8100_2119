@@ -993,3 +993,211 @@ ON LOYALTY_TRANSACTION (created_at);
 - **אינדקס על created_at:** מאיץ את פירוק התאריך (EXTRACT) ב-GROUP BY, כי ה-DB יכול לסרוק את האינדקס בסדר כרונולוגי.
 
 > **הערה:** השיפור בולט יותר ככל שהטבלה גדולה יותר. עם כ-40,000+ רשומות, ההבדל בזמני הריצה ניכר.
+
+---
+
+# שלב ג — אינטגרציה בין מערכות (Customer DB & Orders DB)
+
+## תתרשימי הDSD ERD
+![ERD](images/combined.png)
+![DSD](images/combineddsd.png)
+
+## החלטות שנעשו בשלב האינטגרציה
+1. **שימוש ב-Foreign Data Wrapper (FDW):** במקום לאחד את המסדים למסד אחד ולשבור את ארכיטקטורת המיקרו-שירותים, הוחלט להשתמש ב-FDW המאפשר לשאילתות במסד הלקוחות לגשת לנתונים במסד ההזמנות מרחוק.
+2. **מודל הרשאות מוגבל (Least Privilege):** הוחלט ליצור משתמש ייעודי לקריאה בלבד (`customer_team_reader`) במסד ההזמנות. משתמש זה קיבל הרשאה אך ורק לעמודות שאינן רגישות (לדוגמה, הסתרת עמודת `tax` במסך הלקוחות).
+3. **קשר לוגי (Soft Key) ומחיקות רכות (Soft Deletes):** מכיוון שלא ניתן לאכוף Foreign Key פיזי בין מסדים שונים, הוגדר קשר לוגי בין `customer_id` שבטבלת ה-ORDER לטבלת ה-CUSTOMER. כדי להבטיח שלמות נתונים, הוספנו מנגנון "מחיקה רכה" בעזרת טריגר המעדכן את עמודת `deleted_at` ומונע מחיקה פיזית של לקוחות, וכך נמנע יצירת יתומים (Orphans). 
+4. **הזנת נתונים חסרים (Backfill):** נמצאו הזמנות יתומות במסד ההזמנות שלא היה להן לקוח מתאים. הוחלט ליצור סקריפט אוטומטי שממלא נתוני לקוחות "דמי" (Dummy) כדי לתקן את ימות הנתונים ההיסטוריים.
+
+## הסבר מילולי של התהליך והפקודות
+תהליך האינטגרציה חולק למספר שלבים שנשמרו בקובץ `Integrate.sql`:
+
+1. **הגדרת החיבור:** הרצת הפקודות במסד הלקוחות כדי להגדיר את שרת ההזמנות כיעד:
+```sql
+CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+
+CREATE SERVER orders_server
+FOREIGN DATA WRAPPER postgres_fdw
+OPTIONS (host 'db2', port '5432', dbname 'Orders_db2');
+```
+
+2. **ייבוא סכמות:** ייבוא הטבלאות ממסד ההזמנות לתוך סכמה חדשה במסד הלקוחות:
+```sql
+CREATE SCHEMA IF NOT EXISTS remote_orders;
+
+IMPORT FOREIGN SCHEMA public
+FROM SERVER orders_server INTO remote_orders;
+```
+
+3. **אבטחה:** הרצת הרשאות קריאה ספציפיות במסד ההזמנות, ולאחר מכן הגדרת מיפוי משתמשים במסד הלקוחות:
+**במסד ההזמנות (Provider):**
+```sql
+CREATE USER customer_team_reader WITH PASSWORD 'reader_pass';
+GRANT USAGE ON SCHEMA public TO customer_team_reader;
+GRANT SELECT (order_id, table_id, customer_id, order_time, order_status) ON "ORDER" TO customer_team_reader;
+GRANT SELECT (bill_id, order_id, final_amount, bill_time) ON bill TO customer_team_reader;
+```
+**במסד הלקוחות (Consumer):**
+```sql
+CREATE USER MAPPING FOR "MyUser"
+SERVER orders_server
+OPTIONS (user 'customer_team_reader', password 'reader_pass');
+```
+
+4. **טריגר למחיקה רכה:** הוספת עמודת `deleted_at` לטבלת הלקוחות והפעלת פונקציית טריגר המונעת מחיקה פיזית ומונעת הזמנות יתומות:
+```sql
+ALTER TABLE customer ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP NULL;
+
+CREATE OR REPLACE FUNCTION soft_delete_customer()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE customer 
+    SET deleted_at = CURRENT_TIMESTAMP, is_active = 0 
+    WHERE customer_id = OLD.customer_id;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_soft_delete_customer ON customer;
+CREATE TRIGGER trigger_soft_delete_customer
+BEFORE DELETE ON customer
+FOR EACH ROW EXECUTE FUNCTION soft_delete_customer();
+```
+
+## מבטים ושאילתות (Views & Queries)
+
+### מבט 1: סיכום נאמנות לקוחות (מנקודת המבט של מחלקת הלקוחות המקורית)
+**תיאור:** מבט המחבר בין טבלת `customer` לטבלת `loyalty` (שתי טבלאות מקומיות במסד הלקוחות). מציג את נתוני הקשר של הלקוח יחד עם הסטטוס הפעיל שלו, סך הנקודות והרמה שלו.
+**קוד יצירת המבט:**
+```sql
+CREATE OR REPLACE VIEW v_customer_loyalty_summary AS
+SELECT 
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+    c.email,
+    l.points,
+    l.tier_id,
+    c.is_active
+FROM customer c
+JOIN loyalty l ON c.customer_id = l.customer_id;
+```
+**שליפת נתונים:**
+```sql
+SELECT * FROM v_customer_loyalty_summary LIMIT 10;
+```
+![alt text](images/view1.png)
+
+#### שאילתא 1.1: מציאת לקוחות פעילים עם מעל 100 נקודות
+**תיאור:** מסננת את המבט ומציגה רק לקוחות שהם פעילים וצברו מעל 100 נקודות נאמנות.
+**קוד השאילתא:**
+```sql
+SELECT first_name, last_name, points 
+FROM v_customer_loyalty_summary 
+WHERE points > 100 AND is_active = 1;
+```
+**פלט:** מציגה רשימת שמות ונקודות.
+![alt text](images/view1-1.png)
+
+#### שאילתא 1.2: חישוב ממוצע נקודות לפי רמה
+**תיאור:** מבצעת קיבוץ (GROUP BY) על המבט כדי לחשב את ממוצע הנקודות בכל רמת נאמנות (tier_id).
+**קוד השאילתא:**
+```sql
+SELECT tier_id, AVG(points) as avg_points 
+FROM v_customer_loyalty_summary 
+GROUP BY tier_id 
+ORDER BY tier_id;
+```
+**פלט:** מציגה מזהה רמה וממוצע נקודות.
+![alt text](images/view1-2.png)
+
+---
+
+### מבט 2: סיכום חשבונות הזמנה (מנקודת המבט של מחלקת ההזמנות)
+**תיאור:** מבט המחבר בין טבלת `ORDER` לטבלת `bill` (שתיהן ממסד ההזמנות). מספק סיכום של סטטוס ההזמנה, התשלום הכולל, הנחות והסכום הסופי לתשלום.
+**קוד יצירת המבט:**
+```sql
+CREATE OR REPLACE VIEW v_order_billing_summary AS
+SELECT 
+    o.order_id,
+    o.order_status,
+    o.order_time,
+    b.total_amount,
+    b.discount_amount,
+    b.final_amount
+FROM "ORDER" o
+JOIN bill b ON o.order_id = b.order_id;
+```
+**שליפת נתונים:**
+```sql
+SELECT * FROM v_order_billing_summary LIMIT 10;
+```
+![alt text](images/view2.png)
+
+#### שאילתא 2.1: ממוצע סכום סופי להזמנות שהושלמו
+**תיאור:** מפעילה פונקציית אגרגציה על המבט כדי למצוא את ההכנסה הממוצעת להזמנה מתוך אלו שהושלמו בהצלחה.
+**קוד השאילתא:**
+```sql
+SELECT AVG(final_amount) as avg_completed_amount 
+FROM v_order_billing_summary 
+WHERE order_status = 'Completed';
+```
+**פלט:** מציגה ערך ממוצע כספי.
+![alt text](images/view2-1.png)
+
+
+#### שאילתא 2.2: איתור הזמנות עם הנחות
+**תיאור:** מסננת את המבט ומציגה רק הזמנות שבהן סכום ההנחה (discount_amount) גדול מאפס.
+**קוד השאילתא:**
+```sql
+SELECT order_id, total_amount, discount_amount, final_amount 
+FROM v_order_billing_summary 
+WHERE discount_amount > 0;
+```
+**פלט:** מציגה את פרטי החשבון המלאים להזמנות המוזלות.
+
+---
+
+### מבט 3: היסטוריית הזמנות לקוח (שילוב בין-מחלקתי - אינטגרציה)
+**תיאור:** מבט המדגים את האינטגרציה המוצלחת! הוא מחבר את טבלת `customer` (ממסד הלקוחות) עם טבלת `remote_orders."ORDER"` (ממסד ההזמנות המרוחק דרך ה-FDW). מציג אילו לקוחות ביצעו אילו הזמנות בזמן אמת.
+**קוד יצירת המבט:**
+```sql
+CREATE OR REPLACE VIEW v_cross_db_customer_orders AS
+SELECT 
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+    o.order_id,
+    o.order_status,
+    o.order_time
+FROM customer c
+JOIN remote_orders."ORDER" o ON c.customer_id = o.customer_id;
+```
+**שליפת נתונים:**
+```sql
+SELECT * FROM v_cross_db_customer_orders LIMIT 10;
+```
+![alt text](images/view3.png)
+
+#### שאילתא 3.1: ספירת הזמנות לכל לקוח
+**תיאור:** מבצעת קיבוץ על בסיס שם הלקוח וסופרת כמה הזמנות קיימות על שמו במערכת ההזמנות המרוחקת.
+**קוד השאילתא:**
+```sql
+SELECT first_name, last_name, COUNT(order_id) as total_orders 
+FROM v_cross_db_customer_orders 
+GROUP BY first_name, last_name 
+ORDER BY total_orders DESC;
+```
+**פלט:** מציגה רשימת לקוחות וסך ההזמנות שביצעו.
+![alt text](images/view3-1.png)
+
+#### שאילתא 3.2: איתור לקוחות עם הזמנות מבוטלות
+**תיאור:** שולפת מתוך המבט את שמות הלקוחות שסטטוס ההזמנה שלהם במערכת המרוחקת הוגדר כ-'Cancelled'. משתמשת ב-DISTINCT כדי למנוע כפילויות.
+**קוד השאילתא:**
+```sql
+SELECT DISTINCT first_name, last_name 
+FROM v_cross_db_customer_orders 
+WHERE order_status = 'Cancelled';
+```
+**פלט:** מציגה שמות לקוחות שיש להם ביטולים.
+
+![alt text](images/view3-2.png)
