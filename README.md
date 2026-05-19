@@ -1126,6 +1126,7 @@ SELECT
     b.final_amount
 FROM "ORDER" o
 JOIN bill b ON o.order_id = b.order_id;
+
 ```
 **שליפת נתונים:**
 ```sql
