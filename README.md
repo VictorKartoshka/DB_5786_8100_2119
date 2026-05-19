@@ -1000,7 +1000,7 @@ ON LOYALTY_TRANSACTION (created_at);
 
 ## תתרשימי הDSD ERD
 ![ERD](images/combined.png)
-![DSD](images/combineddsd.png)
+![DSD](images/combinedDSD.png)
 
 ## החלטות שנעשו בשלב האינטגרציה
 1. **שימוש ב-Foreign Data Wrapper (FDW):** במקום לאחד את המסדים למסד אחד ולשבור את ארכיטקטורת המיקרו-שירותים, הוחלט להשתמש ב-FDW המאפשר לשאילתות במסד הלקוחות לגשת לנתונים במסד ההזמנות מרחוק.
