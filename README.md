@@ -17,6 +17,8 @@
 10. [שלב ב — אילוצים (Constraints)](#שלב-ב--אילוצים-constraints)
 11. [שלב ב — Rollback ו-Commit](#שלב-ב--rollback-ו-commit)
 12. [שלב ב — אינדקסים (Indexes)](#שלב-ב--אינדקסים-indexes)
+13. [שלב ג — אינטגרציה בין מערכות (Customer DB & Orders DB)](#שלב-ג--אינטגרציה-בין-מערכות-customer-db--orders-db)
+14. [שלב ד — תכנות (PL/pgSQL Programming)](#שלב-ד--תכנות-plpgsql-programming)
 
 ---
 
@@ -1202,3 +1204,86 @@ WHERE order_status = 'Cancelled';
 **פלט:** מציגה שמות לקוחות שיש להם ביטולים.
 
 ![alt text](images/view3-2.png)
+
+---
+
+# שלב ד — תכנות (PL/pgSQL Programming)
+
+בשלב זה נתנסה בכתיבת תוכניות PL/pgSQL על טבלאות בסיס הנתונים שלנו. התוכניות אינן טרוויאליות וכוללות פונקציות, פרוצדורות, טריגרים ותוכניות ראשיות (Routines).
+
+להלן פירוט של שתי התוכניות הראשיות (Main Programs) שפותחו במסגרת שלב זה:
+
+### תוכנית ראשית 1: שגרת תחזוקה יומית (Daily Maintenance Routine)
+
+**תיאור השגרה:**
+שגרה זו משמשת לביצוע פעולות תחזוקה יומיות במערכת הלקוחות והנאמנות. היא מבצעת שתי פעולות עיקריות:
+1. **חישוב ציון משוב ממוצע:** היא מזמנת את הפונקציה `fn_calculate_avg_feedback_score(p_customer_id)` עבור לקוח מספר 1, המחשבת בצורה דינמית את ממוצע הציונים שהלקוח נתן במשובים שלו בעזרת סמן מפורש (Explicit Cursor) מפרמטר.
+2. **עיבוד והענקת תגמולי נאמנות:** היא מזמנת את הפרוצדורה `pr_process_loyalty_rewards()` הסורקת את הלקוחות הפעילים בעזרת סמן (Cursor), ומזהה לקוחות שביצעו מעל 3 הזמנות אך צברו פחות מ-500 נקודות. לקוחות אלו משודרגים ב-100 נקודות בונוס והעסקה מתועדת בטבלת היסטוריית התנועות.
+
+**קוד התוכנית הראשית (`Maintenance_Routine.sql`):**
+```sql
+DO $$ 
+DECLARE
+    v_avg_score NUMERIC;
+BEGIN
+    RAISE NOTICE 'Starting Daily Maintenance Job...';
+    
+    -- Call Function 2
+    v_avg_score := fn_calculate_avg_feedback_score(1);
+    RAISE NOTICE 'Customer 1 Avg Feedback Score: %', v_avg_score;
+    
+    -- Call Procedure 1
+    CALL pr_process_loyalty_rewards();
+    RAISE NOTICE 'Loyalty rewards processed successfully.';
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Maintenance Job Failed: %', SQLERRM;
+END $$;
+```
+
+---
+
+### תוכנית ראשית 2: שגרת הפקת דוחות ופינוי תורים (Reporting Routine)
+
+**תיאור השגרה:**
+שגרה זו מיועדת להרצה תקופתית עבור הפקת דוחות אינטגרטיביים וטיפול ברשומות פגות תוקף ברשימת ההמתנה. היא מבצעת שתי פעולות עיקריות:
+1. **טיפול בתורים פגי תוקף:** היא מזמנת את הפרוצדורה `pr_resolve_stale_waitlist()` שמאתרת רשומות ברשימת ההמתנה (Waitlist) שהסטטוס שלהן הוא "Waiting" והן ממתינות מעל שעתיים. הפרוצדורה מעבירה את הסטטוס שלהן ל-"Expired" ומפצה את הלקוחות ב-50 נקודות נאמנות כפיצוי על ההמתנה הממושכת.
+2. **הפקת דוח הזמנות חוצה-מסדים (אינטגרטיבי):** היא מזמנת את הפונקציה `fn_get_customer_remote_orders(p_customer_id)` שמחזירה סמן התייחסות (`REFCURSOR`) המצביע על רשימת ההזמנות של הלקוח ממסד הנתונים המרוחק (`Orders_DB`) דרך ה-FDW. התוכנית הראשית פותחת את הסמן בתוך הטרנזקציה, רצה בלולאה על התוצאות, מדפיסה את פרטי כל הזמנה וסכומה הסופי, וסוגרת את הסמן בצורה מבוקרת.
+
+**קוד התוכנית הראשית (`Reporting_Routine.sql`):**
+```sql
+DO $$ 
+DECLARE
+    v_refcursor refcursor;
+    v_order_record RECORD;
+BEGIN
+    RAISE NOTICE 'Starting Customer Report Generation...';
+    
+    -- Call Procedure 2
+    CALL pr_resolve_stale_waitlist();
+    RAISE NOTICE 'Stale waitlists resolved.';
+    
+    -- Architecture Note: Strict transaction boundary maintained for Ref Cursor
+    -- Call Function 1
+    v_refcursor := fn_get_customer_remote_orders(1);
+    
+    RAISE NOTICE 'Remote Orders for Customer 1:';
+    LOOP
+        FETCH v_refcursor INTO v_order_record;
+        EXIT WHEN NOT FOUND;
+        
+        RAISE NOTICE 'Order ID: %, Status: %, Final Amount: %', 
+                     v_order_record.order_id, 
+                     v_order_record.order_status, 
+                     v_order_record.final_amount;
+    END LOOP;
+    
+    CLOSE v_refcursor;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Report Generation Failed: %', SQLERRM;
+END $$;
+```
+
