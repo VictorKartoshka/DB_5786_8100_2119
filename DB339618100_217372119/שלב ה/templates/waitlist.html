@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Waitlist - LUXE DINE{% endblock %}
+{% block content %}
+<div class="toolbar">
+    <h1>Waitlist</h1>
+    <button class="btn btn-primary" onclick="openModal('addModal')">+ Add Entry</button>
+</div>
+
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Party Size</th>
+                <th>Request Time</th>
+                <th>Est. Wait (min)</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for w in entries %}
+            <tr>
+                <td>{{ w.customer_name }}</td>
+                <td>{{ w.party_size }}</td>
+                <td>{{ w.request_time }}</td>
+                <td>{{ w.est_wait_time }}</td>
+                <td>
+                    <span class="badge {% if w.status_description == 'Completed' %}badge-success{% elif w.status_description == 'Pending' %}badge-warning{% elif w.status_description == 'Cancelled' %}badge-danger{% else %}badge-info{% endif %}">{{ w.status_description }}</span>
+                </td>
+                <td class="actions">
+                    <button class="btn btn-sm" onclick="editEntry({{ w.waitlist_id }})">✏️ Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteEntry({{ w.waitlist_id }})">🗑️ Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Waitlist Entry Modal -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add Waitlist Entry</h2>
+            <button class="btn btn-sm" onclick="closeModal('addModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Customer</label>
+                    <select name="customer_id">
+                        {% for c in customers %}
+                        <option value="{{ c.customer_id }}">{{ c.first_name }} {{ c.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Party Size</label>
+                        <input type="number" name="party_size" min="1" max="20">
+                    </div>
+                    <div class="form-group">
+                        <label>Est. Wait Time (min)</label>
+                        <input type="number" name="est_wait_time" min="0" max="300">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Request Time</label>
+                    <input type="datetime-local" name="request_time">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status_id">
+                        {% for s in statuses %}
+                        <option value="{{ s.status_id }}">{{ s.description }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('addModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="createRecord('waitlist', this.closest('.modal').querySelector('form'))">Add Entry</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Waitlist Entry Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Edit Waitlist Entry</h2>
+            <button class="btn btn-sm" onclick="closeModal('editModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Waitlist ID</label>
+                    <input type="text" name="waitlist_id" id="editPkInput">
+                    <button type="button" class="btn btn-sm" onclick="fetchRecord('waitlist', document.getElementById('editPkInput').value).then(()=>document.getElementById('editFields').classList.remove('hidden'))">Search</button>
+                </div>
+                <div id="editFields" class="hidden">
+                    <div class="form-group">
+                        <label>Customer</label>
+                        <select name="customer_id" id="edit_customer_id">
+                            {% for c in customers %}
+                            <option value="{{ c.customer_id }}">{{ c.first_name }} {{ c.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Party Size</label>
+                            <input type="number" name="party_size" id="edit_party_size" min="1" max="20">
+                        </div>
+                        <div class="form-group">
+                            <label>Est. Wait Time (min)</label>
+                            <input type="number" name="est_wait_time" id="edit_est_wait_time" min="0" max="300">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Request Time</label>
+                        <input type="datetime-local" name="request_time" id="edit_request_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status_id" id="edit_status_id">
+                            {% for s in statuses %}
+                            <option value="{{ s.status_id }}">{{ s.description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('editModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="updateRecord('waitlist', this.closest('.modal').querySelector('form'))">Save Changes</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editEntry(id) {
+    openModal('editModal');
+    document.getElementById('editPkInput').value = id;
+    fetchRecord('waitlist', id);
+}
+function deleteEntry(id) {
+    if(confirm('Are you sure you want to delete this entry?')) deleteRecord('waitlist', id);
+}
+</script>
+{% endblock %}

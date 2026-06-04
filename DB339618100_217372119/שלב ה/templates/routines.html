@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Routines - LUXE DINE{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Routines</h1>
+    <p>Execute Phase 4 PL/pgSQL functions and procedures</p>
+</div>
+
+<div class="query-grid">
+    <div class="query-card">
+        <div class="query-card-header">
+            <span class="query-icon">⭐</span>
+            <h3>Average Feedback Score</h3>
+        </div>
+        <p>Calculate the average feedback score for a specific customer using a PL/pgSQL function.</p>
+        <div class="form-group">
+            <label>Customer ID</label>
+            <input type="number" id="avg_feedback_customer_id" min="1" placeholder="Enter customer ID">
+        </div>
+        <button class="btn btn-primary" onclick="runRoutine('avg_feedback', {customer_id: document.getElementById('avg_feedback_customer_id').value})">Execute</button>
+        <div id="result-avg_feedback" class="results-container"></div>
+    </div>
+
+    <div class="query-card">
+        <div class="query-card-header">
+            <span class="query-icon">🏆</span>
+            <h3>Process Loyalty Rewards</h3>
+        </div>
+        <p>Process and update loyalty rewards for all eligible customers based on their activity.</p>
+        <button class="btn btn-primary" onclick="runRoutine('loyalty_rewards', {})">Execute</button>
+        <div id="result-loyalty_rewards" class="results-container"></div>
+    </div>
+
+    <div class="query-card">
+        <div class="query-card-header">
+            <span class="query-icon">⏳</span>
+            <h3>Resolve Stale Waitlist</h3>
+        </div>
+        <p>Automatically resolve waitlist entries that have exceeded the maximum wait time.</p>
+        <button class="btn btn-primary" onclick="runRoutine('stale_waitlist', {})">Execute</button>
+        <div id="result-stale_waitlist" class="results-container"></div>
+    </div>
+
+    <div class="query-card">
+        <div class="query-card-header">
+            <span class="query-icon">🛒</span>
+            <h3>Customer Remote Orders</h3>
+        </div>
+        <p>Retrieve all remote orders for a specific customer from the linked database.</p>
+        <div class="form-group">
+            <label>Customer ID</label>
+            <input type="number" id="remote_orders_customer_id" min="1" placeholder="Enter customer ID">
+        </div>
+        <button class="btn btn-primary" onclick="runRoutine('remote_orders', {customer_id: document.getElementById('remote_orders_customer_id').value})">Execute</button>
+        <div id="result-remote_orders" class="results-container"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+

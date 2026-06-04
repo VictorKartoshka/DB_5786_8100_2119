@@ -1,0 +1,437 @@
+{% extends 'base.html' %}
+{% block title %}Loyalty Program - LUXE DINE{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Loyalty Program</h1>
+    <p>Manage loyalty points, tiers, transactions, and reasons</p>
+</div>
+
+<div class="tabs">
+    <button class="tab-btn active" data-tab="loyalty" onclick="switchTab('loyalty')">🏆 Loyalty</button>
+    <button class="tab-btn" data-tab="tiers" onclick="switchTab('tiers')">🥇 Tiers</button>
+    <button class="tab-btn" data-tab="transactions" onclick="switchTab('transactions')">💳 Transactions</button>
+    <button class="tab-btn" data-tab="reasons" onclick="switchTab('reasons')">📋 Reasons</button>
+</div>
+
+<!-- Tab 1: Loyalty -->
+<div class="tab-panel active" id="panel-loyalty">
+    <div class="toolbar">
+        <h2>Customer Loyalty</h2>
+        <button class="btn btn-primary" onclick="openModal('addLoyaltyModal')">+ Add Loyalty</button>
+    </div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr><th>Customer</th><th>Points</th><th>Tier</th><th>Last Updated</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for l in loyalties %}
+                <tr>
+                    <td>{{ l.customer_name }}</td>
+                    <td>{{ l.points }}</td>
+                    <td>
+                        <span class="badge {% if l.tier_level == 'Platinum' %}badge-platinum{% elif l.tier_level == 'Gold' %}badge-gold{% elif l.tier_level == 'Silver' %}badge-silver{% elif l.tier_level == 'Bronze' %}badge-bronze{% else %}badge-info{% endif %}">{{ l.tier_level }}</span>
+                    </td>
+                    <td>{{ l.last_updated }}</td>
+                    <td class="actions">
+                        <button class="btn btn-sm" onclick="editLoyalty({{ l.loyalty_id }})">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteLoyalty({{ l.loyalty_id }})">🗑️ Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Tab 2: Tiers -->
+<div class="tab-panel" id="panel-tiers">
+    <div class="toolbar">
+        <h2>Loyalty Tiers</h2>
+        <button class="btn btn-primary" onclick="openModal('addTierModal')">+ Add Tier</button>
+    </div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr><th>Level</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for t in tiers %}
+                <tr>
+                    <td>
+                        <span class="badge {% if t.level == 'Platinum' %}badge-platinum{% elif t.level == 'Gold' %}badge-gold{% elif t.level == 'Silver' %}badge-silver{% elif t.level == 'Bronze' %}badge-bronze{% else %}badge-info{% endif %}">{{ t.level }}</span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn btn-sm" onclick="editTier({{ t.tier_id }})">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTier({{ t.tier_id }})">🗑️ Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Tab 3: Transactions -->
+<div class="tab-panel" id="panel-transactions">
+    <div class="toolbar">
+        <h2>Point Transactions</h2>
+        <button class="btn btn-primary" onclick="openModal('addTransactionModal')">+ Add Transaction</button>
+    </div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr><th>Customer</th><th>Reason</th><th>Points Change</th><th>Date</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for tr in transactions %}
+                <tr>
+                    <td>{{ tr.customer_name }}</td>
+                    <td>{{ tr.reason_description }}</td>
+                    <td style="color: {% if tr.points_change > 0 %}#22c55e{% else %}#ef4444{% endif %}; font-weight: 600;">{% if tr.points_change > 0 %}+{% endif %}{{ tr.points_change }}</td>
+                    <td>{{ tr.transaction_date }}</td>
+                    <td class="actions">
+                        <button class="btn btn-sm" onclick="editTransaction({{ tr.transaction_id }})">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTransaction({{ tr.transaction_id }})">🗑️ Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Tab 4: Reasons -->
+<div class="tab-panel" id="panel-reasons">
+    <div class="toolbar">
+        <h2>Transaction Reasons</h2>
+        <button class="btn btn-primary" onclick="openModal('addReasonModal')">+ Add Reason</button>
+    </div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr><th>Description</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for reason in reasons %}
+                <tr>
+                    <td>{{ reason.description }}</td>
+                    <td class="actions">
+                        <button class="btn btn-sm" onclick="editReason({{ reason.reason_id }})">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteReason({{ reason.reason_id }})">🗑️ Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Loyalty Modal -->
+<div class="modal-overlay" id="addLoyaltyModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add Loyalty Record</h2>
+            <button class="btn btn-sm" onclick="closeModal('addLoyaltyModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Customer</label>
+                    <select name="customer_id">
+                        {% for c in customers %}<option value="{{ c.customer_id }}">{{ c.first_name }} {{ c.last_name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Points</label>
+                    <input type="number" name="points" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Tier</label>
+                    <select name="tier_id">
+                        {% for t in tiers %}<option value="{{ t.tier_id }}">{{ t.level }}</option>{% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('addLoyaltyModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="createRecord('loyalty', this.closest('.modal').querySelector('form'))">Add Loyalty</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Loyalty Modal -->
+<div class="modal-overlay" id="editLoyaltyModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Edit Loyalty Record</h2>
+            <button class="btn btn-sm" onclick="closeModal('editLoyaltyModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Loyalty ID</label>
+                    <input type="text" name="loyalty_id" id="editLoyaltyPkInput">
+                    <button type="button" class="btn btn-sm" onclick="fetchRecord('loyalty', document.getElementById('editLoyaltyPkInput').value).then(()=>document.getElementById('editLoyaltyFields').classList.remove('hidden'))">Search</button>
+                </div>
+                <div id="editLoyaltyFields" class="hidden">
+                    <div class="form-group">
+                        <label>Customer</label>
+                        <select name="customer_id" id="edit_loyalty_customer_id">
+                            {% for c in customers %}<option value="{{ c.customer_id }}">{{ c.first_name }} {{ c.last_name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Points</label>
+                        <input type="number" name="points" id="edit_loyalty_points" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Tier</label>
+                        <select name="tier_id" id="edit_loyalty_tier_id">
+                            {% for t in tiers %}<option value="{{ t.tier_id }}">{{ t.level }}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('editLoyaltyModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="updateRecord('loyalty', this.closest('.modal').querySelector('form'))">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Tier Modal -->
+<div class="modal-overlay" id="addTierModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add Tier</h2>
+            <button class="btn btn-sm" onclick="closeModal('addTierModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Level</label>
+                    <input type="text" name="level" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('addTierModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="createRecord('loyalty_tier', this.closest('.modal').querySelector('form'))">Add Tier</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Tier Modal -->
+<div class="modal-overlay" id="editTierModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Edit Tier</h2>
+            <button class="btn btn-sm" onclick="closeModal('editTierModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Tier ID</label>
+                    <input type="text" name="tier_id" id="editTierPkInput">
+                    <button type="button" class="btn btn-sm" onclick="fetchRecord('loyalty_tier', document.getElementById('editTierPkInput').value).then(()=>document.getElementById('editTierFields').classList.remove('hidden'))">Search</button>
+                </div>
+                <div id="editTierFields" class="hidden">
+                    <div class="form-group">
+                        <label>Level</label>
+                        <input type="text" name="level" id="edit_tier_level">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('editTierModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="updateRecord('loyalty_tier', this.closest('.modal').querySelector('form'))">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Transaction Modal -->
+<div class="modal-overlay" id="addTransactionModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add Transaction</h2>
+            <button class="btn btn-sm" onclick="closeModal('addTransactionModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Loyalty Record</label>
+                    <select name="loyalty_id">
+                        {% for l in loyalties %}<option value="{{ l.loyalty_id }}">{{ l.customer_name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <select name="reason_id">
+                        {% for r in reasons %}<option value="{{ r.reason_id }}">{{ r.description }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Points Change</label>
+                    <input type="number" name="points_change">
+                </div>
+                <div class="form-group">
+                    <label>Transaction Date</label>
+                    <input type="date" name="transaction_date">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('addTransactionModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="createRecord('loyalty_transaction', this.closest('.modal').querySelector('form'))">Add Transaction</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Transaction Modal -->
+<div class="modal-overlay" id="editTransactionModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Edit Transaction</h2>
+            <button class="btn btn-sm" onclick="closeModal('editTransactionModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Transaction ID</label>
+                    <input type="text" name="transaction_id" id="editTransactionPkInput">
+                    <button type="button" class="btn btn-sm" onclick="fetchRecord('loyalty_transaction', document.getElementById('editTransactionPkInput').value).then(()=>document.getElementById('editTransactionFields').classList.remove('hidden'))">Search</button>
+                </div>
+                <div id="editTransactionFields" class="hidden">
+                    <div class="form-group">
+                        <label>Loyalty Record</label>
+                        <select name="loyalty_id" id="edit_transaction_loyalty_id">
+                            {% for l in loyalties %}<option value="{{ l.loyalty_id }}">{{ l.customer_name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <select name="reason_id" id="edit_transaction_reason_id">
+                            {% for r in reasons %}<option value="{{ r.reason_id }}">{{ r.description }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Points Change</label>
+                        <input type="number" name="points_change" id="edit_transaction_points_change">
+                    </div>
+                    <div class="form-group">
+                        <label>Transaction Date</label>
+                        <input type="date" name="transaction_date" id="edit_transaction_date">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('editTransactionModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="updateRecord('loyalty_transaction', this.closest('.modal').querySelector('form'))">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Reason Modal -->
+<div class="modal-overlay" id="addReasonModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add Reason</h2>
+            <button class="btn btn-sm" onclick="closeModal('addReasonModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" name="description" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('addReasonModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="createRecord('reason', this.closest('.modal').querySelector('form'))">Add Reason</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Reason Modal -->
+<div class="modal-overlay" id="editReasonModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Edit Reason</h2>
+            <button class="btn btn-sm" onclick="closeModal('editReasonModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Reason ID</label>
+                    <input type="text" name="reason_id" id="editReasonPkInput">
+                    <button type="button" class="btn btn-sm" onclick="fetchRecord('reason', document.getElementById('editReasonPkInput').value).then(()=>document.getElementById('editReasonFields').classList.remove('hidden'))">Search</button>
+                </div>
+                <div id="editReasonFields" class="hidden">
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="description" id="edit_reason_description">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('editReasonModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="updateRecord('reason', this.closest('.modal').querySelector('form'))">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    document.getElementById(`panel-${tabName}`).classList.add('active');
+}
+
+function editLoyalty(id) {
+    openModal('editLoyaltyModal');
+    document.getElementById('editLoyaltyPkInput').value = id;
+    fetchRecord('loyalty', id);
+}
+function deleteLoyalty(id) {
+    if(confirm('Are you sure you want to delete this loyalty record?')) deleteRecord('loyalty', id);
+}
+
+function editTier(id) {
+    openModal('editTierModal');
+    document.getElementById('editTierPkInput').value = id;
+    fetchRecord('loyalty_tier', id);
+}
+function deleteTier(id) {
+    if(confirm('Are you sure you want to delete this tier?')) deleteRecord('loyalty_tier', id);
+}
+
+function editTransaction(id) {
+    openModal('editTransactionModal');
+    document.getElementById('editTransactionPkInput').value = id;
+    fetchRecord('loyalty_transaction', id);
+}
+function deleteTransaction(id) {
+    if(confirm('Are you sure you want to delete this transaction?')) deleteRecord('loyalty_transaction', id);
+}
+
+function editReason(id) {
+    openModal('editReasonModal');
+    document.getElementById('editReasonPkInput').value = id;
+    fetchRecord('reason', id);
+}
+function deleteReason(id) {
+    if(confirm('Are you sure you want to delete this reason?')) deleteRecord('reason', id);
+}
+</script>
+{% endblock %}

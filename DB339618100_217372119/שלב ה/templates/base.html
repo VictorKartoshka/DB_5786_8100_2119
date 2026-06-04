@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LUXE DINE{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h1>LUXE DINE</h1>
+            <span class="logo-subtitle">Management System</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}"><span class="nav-icon">📊</span> Dashboard</a>
+            <a href="{{ url_for('customers') }}" class="{% if active_page == 'customers' %}active{% endif %}"><span class="nav-icon">👥</span> Customers</a>
+            <a href="{{ url_for('reservations') }}" class="{% if active_page == 'reservations' %}active{% endif %}"><span class="nav-icon">📅</span> Reservations</a>
+            <a href="{{ url_for('waitlist') }}" class="{% if active_page == 'waitlist' %}active{% endif %}"><span class="nav-icon">⏳</span> Waitlist</a>
+            <a href="{{ url_for('feedback') }}" class="{% if active_page == 'feedback' %}active{% endif %}"><span class="nav-icon">⭐</span> Feedback</a>
+            <a href="{{ url_for('loyalty') }}" class="{% if active_page == 'loyalty' %}active{% endif %}"><span class="nav-icon">🏆</span> Loyalty</a>
+            <a href="{{ url_for('orders') }}" class="{% if active_page == 'orders' %}active{% endif %}"><span class="nav-icon">🛒</span> Orders</a>
+            <hr class="nav-divider">
+            <a href="{{ url_for('queries') }}" class="{% if active_page == 'queries' %}active{% endif %}"><span class="nav-icon">📝</span> Queries</a>
+            <a href="{{ url_for('routines') }}" class="{% if active_page == 'routines' %}active{% endif %}"><span class="nav-icon">⚙️</span> Routines</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('logout') }}" class="btn btn-sm">🚪 Logout</a>
+        </div>
+    </aside>
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

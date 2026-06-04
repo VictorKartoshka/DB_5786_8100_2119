@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - LUXE DINE{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>System Overview</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ stats.customer_count }}</div>
+        <div class="stat-label">Total Customers</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">{{ stats.reservation_count }}</div>
+        <div class="stat-label">Total Reservations</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ stats.waitlist_count }}</div>
+        <div class="stat-label">Pending Waitlist</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value">{{ stats.avg_feedback }}</div>
+        <div class="stat-label">Avg Rating</div>
+    </div>
+</div>
+
+<div class="nav-grid">
+    <a href="{{ url_for('customers') }}" class="card">
+        <span class="nav-icon">👥</span>
+        <h3>Customers</h3>
+    </a>
+    <a href="{{ url_for('reservations') }}" class="card">
+        <span class="nav-icon">📅</span>
+        <h3>Reservations</h3>
+    </a>
+    <a href="{{ url_for('waitlist') }}" class="card">
+        <span class="nav-icon">⏳</span>
+        <h3>Waitlist</h3>
+    </a>
+    <a href="{{ url_for('feedback') }}" class="card">
+        <span class="nav-icon">⭐</span>
+        <h3>Feedback</h3>
+    </a>
+    <a href="{{ url_for('loyalty') }}" class="card">
+        <span class="nav-icon">🏆</span>
+        <h3>Loyalty</h3>
+    </a>
+    <a href="{{ url_for('orders') }}" class="card">
+        <span class="nav-icon">🛒</span>
+        <h3>Orders</h3>
+    </a>
+    <a href="{{ url_for('queries') }}" class="card">
+        <span class="nav-icon">📝</span>
+        <h3>Queries</h3>
+    </a>
+    <a href="{{ url_for('routines') }}" class="card">
+        <span class="nav-icon">⚙️</span>
+        <h3>Routines</h3>
+    </a>
+</div>
+{% endblock %}

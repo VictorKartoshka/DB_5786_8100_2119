@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Queries - LUXE DINE{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Query Runner</h1>
+    <p>Execute Phase 2 analytical queries</p>
+</div>
+
+<div class="query-grid">
+    <div class="query-card">
+        <div class="query-card-header">
+            <span class="query-icon">📊</span>
+            <h3>S1 - Monthly Reservation Report</h3>
+        </div>
+        <p>View reservation statistics grouped by month, including total reservations, unique customers, and average party size.</p>
+        <button class="btn btn-primary" onclick="runQuery('s1')">Run Query</button>
+    </div>
+
+    <div class="query-card">
+        <div class="query-card-header">
+            <span class="query-icon">🏆</span>
+            <h3>S2 - Top 10 Customers</h3>
+        </div>
+        <p>Identify the top 10 customers based on total reservations, loyalty points, and feedback scores.</p>
+        <button class="btn btn-primary" onclick="runQuery('s2')">Run Query</button>
+    </div>
+
+    <div class="query-card">
+        <div class="query-card-header">
+            <span class="query-icon">📅</span>
+            <h3>S5 - Feedback by Day of Week</h3>
+        </div>
+        <p>Analyze customer feedback patterns across different days of the week to identify trends.</p>
+        <button class="btn btn-primary" onclick="runQuery('s5')">Run Query</button>
+    </div>
+
+    <div class="query-card">
+        <div class="query-card-header">
+            <span class="query-icon">🌤️</span>
+            <h3>S8 - Seasonal Trends</h3>
+        </div>
+        <p>Discover seasonal patterns in reservations and customer activity throughout the year.</p>
+        <button class="btn btn-primary" onclick="runQuery('s8')">Run Query</button>
+    </div>
+</div>
+
+<div id="queryResults" class="results-container"></div>
+
+{% endblock %}
+
+

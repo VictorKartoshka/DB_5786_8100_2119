@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Feedback - LUXE DINE{% endblock %}
+{% block content %}
+<div class="toolbar">
+    <h1>Feedback</h1>
+    <button class="btn btn-primary" onclick="openModal('addModal')">+ Add Feedback</button>
+</div>
+
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Reservation Date</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>Feedback Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in feedbacks %}
+            <tr>
+                <td>{{ f.customer_name }}</td>
+                <td>{{ f.reservation_date }}</td>
+                <td>
+                    <div class="star-rating">
+                        {% for i in range(1, 6) %}
+                        <span class="star {% if i <= f.rating %}filled{% else %}empty{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td>{{ f.comment }}</td>
+                <td>{{ f.feedback_date }}</td>
+                <td class="actions">
+                    <button class="btn btn-sm" onclick="editFeedback({{ f.feedback_id }})">✏️ Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteFeedback({{ f.feedback_id }})">🗑️ Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Feedback Modal -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add Feedback</h2>
+            <button class="btn btn-sm" onclick="closeModal('addModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Reservation</label>
+                    <select name="reservation_id">
+                        {% for r in reservations %}
+                        <option value="{{ r.reservation_id }}">{{ r.customer_name }} - {{ r.datetime }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-rating-input">
+                        <span class="star empty" onclick="setRating(this.parentElement, 1)">★</span>
+                        <span class="star empty" onclick="setRating(this.parentElement, 2)">★</span>
+                        <span class="star empty" onclick="setRating(this.parentElement, 3)">★</span>
+                        <span class="star empty" onclick="setRating(this.parentElement, 4)">★</span>
+                        <span class="star empty" onclick="setRating(this.parentElement, 5)">★</span>
+                        <input type="hidden" name="rating" id="ratingInput" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Comment</label>
+                    <textarea name="comment"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Feedback Date</label>
+                    <input type="date" name="feedback_date">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('addModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="createRecord('feedback', this.closest('.modal').querySelector('form'))">Add Feedback</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Feedback Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Edit Feedback</h2>
+            <button class="btn btn-sm" onclick="closeModal('editModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label>Feedback ID</label>
+                    <input type="text" name="feedback_id" id="editPkInput">
+                    <button type="button" class="btn btn-sm" onclick="fetchRecord('feedback', document.getElementById('editPkInput').value).then(()=>document.getElementById('editFields').classList.remove('hidden'))">Search</button>
+                </div>
+                <div id="editFields" class="hidden">
+                    <div class="form-group">
+                        <label>Reservation</label>
+                        <select name="reservation_id" id="edit_reservation_id">
+                            {% for r in reservations %}
+                            <option value="{{ r.reservation_id }}">{{ r.customer_name }} - {{ r.datetime }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rating</label>
+                        <div class="star-rating-input">
+                            <span class="star empty" onclick="setRating(this.parentElement, 1)">★</span>
+                            <span class="star empty" onclick="setRating(this.parentElement, 2)">★</span>
+                            <span class="star empty" onclick="setRating(this.parentElement, 3)">★</span>
+                            <span class="star empty" onclick="setRating(this.parentElement, 4)">★</span>
+                            <span class="star empty" onclick="setRating(this.parentElement, 5)">★</span>
+                            <input type="hidden" name="rating" id="edit_rating" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Comment</label>
+                        <textarea name="comment" id="edit_comment"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Feedback Date</label>
+                        <input type="date" name="feedback_date" id="edit_feedback_date">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('editModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="updateRecord('feedback', this.closest('.modal').querySelector('form'))">Save Changes</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function setRating(container, value) {
+    const stars = container.querySelectorAll('.star');
+    const input = container.querySelector('input[type="hidden"]');
+    input.value = value;
+    stars.forEach((star, index) => {
+        star.classList.toggle('filled', index < value);
+        star.classList.toggle('empty', index >= value);
+    });
+}
+
+function editFeedback(id) {
+    openModal('editModal');
+    document.getElementById('editPkInput').value = id;
+    fetchRecord('feedback', id);
+}
+function deleteFeedback(id) {
+    if(confirm('Are you sure you want to delete this feedback?')) deleteRecord('feedback', id);
+}
+</script>
+{% endblock %}
