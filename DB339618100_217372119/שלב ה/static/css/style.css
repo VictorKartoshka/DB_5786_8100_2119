@@ -793,6 +793,16 @@ img {
     color: #e5e4e2;
 }
 
+.points-positive {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.points-negative {
+    color: #ef4444;
+    font-weight: 600;
+}
+
 
 /* ============================================================
    12. TABS

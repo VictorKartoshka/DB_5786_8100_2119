@@ -1,0 +1,1 @@
+open the app and login using admin and password admin

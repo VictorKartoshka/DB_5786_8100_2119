@@ -19,6 +19,7 @@
 12. [שלב ב — אינדקסים (Indexes)](#שלב-ב--אינדקסים-indexes)
 13. [שלב ג — אינטגרציה בין מערכות (Customer DB & Orders DB)](#שלב-ג--אינטגרציה-בין-מערכות-customer-db--orders-db)
 14. [שלב ד — תכנות (PL/pgSQL Programming)](#שלב-ד--תכנות-plpgsql-programming)
+15. [שלב ה — אפליקציית ניהול (Web Application)](#שלב-ה--אפליקציית-ניהול-web-application)
 
 ---
 
@@ -1287,3 +1288,66 @@ EXCEPTION
 END $$;
 ```
 
+---
+
+## שלב ה — אפליקציית ניהול (Web Application)
+
+### הוראות הפעלה
+
+1. **דרישות מקדימות** — התקינו את החבילות הנדרשות:
+   ```bash
+   pip install flask psycopg2-binary
+   ```
+
+2. **הגדרת מסד הנתונים** — ודאו שה-PostgreSQL פועל ושפרטי החיבור ב-`db.py` נכונים (host, port, dbname, user, password).
+
+3. **הפעלת האפליקציה** — הריצו מתוך תיקיית `שלב ה`:
+   ```bash
+   python app.py
+   ```
+
+4. **כניסה למערכת** — פתחו דפדפן בכתובת `http://localhost:5000`  
+   שם משתמש: `admin` | סיסמה: `admin`
+
+---
+
+### כלים ששימשו לבניית האפליקציה
+
+| כלי | תפקיד |
+|-----|--------|
+| **Python 3** | שפת התכנות הראשית |
+| **Flask** | מסגרת Web לבניית השרת וניתוב הנתיבים |
+| **psycopg2** | חיבור Python ↔ PostgreSQL |
+| **Jinja2** | מנוע תבניות HTML (מובנה ב-Flask) |
+| **HTML / CSS / JavaScript** | ממשק משתמש — עיצוב ואינטראקטיביות |
+| **PostgreSQL** | מסד הנתונים הרלציוני |
+
+---
+
+### תמונות מסך של הפעלת האפליקציה
+
+## מסך כניסה
+
+![alt text](images/loginscreen.png)
+
+## לוח בקרה ושאילתות
+
+![alt text](images/queries.png)
+
+## הרצת שאילתה
+
+![alt text](images/runq2.png)
+
+## פרוצדורות ופונקציות
+
+![alt text](images/procedures.png)
+
+## ציון משוב
+
+![alt text](images/feedbackScoreRun.png)
+
+## ממשק CRUD — הוספה ועריכה
+
+![alt text](images/Crud.png)
+
+![alt text](images/edit.png)

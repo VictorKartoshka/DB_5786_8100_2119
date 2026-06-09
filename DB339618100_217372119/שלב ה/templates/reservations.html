@@ -29,8 +29,8 @@
                     <span class="badge {% if r.status_description == 'Completed' %}badge-success{% elif r.status_description == 'Confirmed' %}badge-info{% elif r.status_description == 'Cancelled' %}badge-danger{% elif r.status_description == 'No-Show' %}badge-danger{% elif r.status_description == 'Pending' %}badge-warning{% else %}badge-info{% endif %}">{{ r.status_description }}</span>
                 </td>
                 <td class="actions">
-                    <button class="btn btn-sm" onclick="editReservation({{ r.reservation_id }})">✏️ Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteReservation({{ r.reservation_id }})">🗑️ Delete</button>
+                    <button class="btn btn-sm" onclick="editReservation(this.dataset.id)" data-id="{{ r.reservation_id }}">✏️ Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteReservation(this.dataset.id)" data-id="{{ r.reservation_id }}">🗑️ Delete</button>
                 </td>
             </tr>
             {% endfor %}

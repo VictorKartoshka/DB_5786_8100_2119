@@ -177,7 +177,7 @@ def orders():
     try:
         order_rows, _ = query_db('''
             SELECT o.order_id, COALESCE(c.first_name || ' ' || c.last_name, 'Unknown') as customer_name,
-                   o.table_id, o.order_time, o.order_status, o.customer_id
+                   o.table_id as table_number, o.waiter_id, o.order_time, o.order_status, o.customer_id
             FROM remote_orders."ORDER" o
             LEFT JOIN customer c ON o.customer_id = c.customer_id
             ORDER BY o.order_time DESC LIMIT 200
@@ -187,7 +187,7 @@ def orders():
 
     try:
         bill_rows, _ = query_db('''
-            SELECT b.bill_id, b.order_id, b.final_amount, b.bill_time
+            SELECT b.bill_id, b.order_id, b.total_amount, b.tax as tax_amount, b.discount_amount, b.final_amount, b.bill_time
             FROM remote_orders.bill b
             ORDER BY b.bill_time DESC LIMIT 200
         ''')
@@ -201,6 +201,8 @@ def orders():
 
     try:
         discount_rows, _ = query_db('SELECT * FROM remote_orders.discount ORDER BY discount_id')
+        for d in discount_rows:
+            d['discount_percentage'] = d['percentage']
     except Exception:
         discount_rows = []
 
@@ -219,10 +221,16 @@ def orders():
     except Exception:
         payment_rows = []
 
+    try:
+        cust_rows, _ = query_db('SELECT customer_id, first_name, last_name FROM customer WHERE is_active=1 ORDER BY customer_id')
+    except Exception:
+        cust_rows = []
+
     return render_template(
         'orders.html',
         orders=order_rows, bills=bill_rows, order_items=item_rows,
         discounts=discount_rows, bill_discounts=bd_rows, payments=payment_rows,
+        customers=cust_rows,
         active_page='orders'
     )
 
@@ -715,11 +723,13 @@ def api_status_type_delete():
 @login_required
 def api_order_create():
     data = request.json
+    if 'table_number' in data:
+        data['table_id'] = data['table_number']
     required = ['table_id', 'customer_id', 'waiter_id']
     if not all(k in data for k in required):
         return jsonify(success=False, error="Missing required fields")
     try:
-        execute_db('INSERT INTO remote_orders."ORDER" (order_id, table_id, customer_id, waiter_id, order_time, order_status) VALUES ((SELECT COALESCE(MAX(order_id),0)+1 FROM remote_orders."ORDER),%s,%s,%s,%s,%s)', (data['table_id'], data['customer_id'], data['waiter_id'], data.get('order_time', datetime.now().isoformat()), data.get('order_status', 'Pending')))
+        execute_db('INSERT INTO remote_orders."ORDER" (order_id, table_id, customer_id, waiter_id, order_time, order_status) VALUES ((SELECT COALESCE(MAX(order_id),0)+1 FROM remote_orders."ORDER"),%s,%s,%s,%s,%s)', (data['table_id'], data['customer_id'], data['waiter_id'], data.get('order_time', datetime.now().isoformat()), data.get('order_status', 'Pending')))
         return jsonify(success=True)
     except Exception as e:
         return jsonify(success=False, error=str(e))
@@ -731,7 +741,9 @@ def api_order_fetch():
     if not all(k in data for k in required):
         return jsonify(success=False, error="Missing required fields")
     try:
-        row, _ = query_db('SELECT order_id, table_id, customer_id, order_time, order_status FROM remote_orders."ORDER" WHERE order_id=%s', (data['id'],), fetchone=True)
+        row, _ = query_db('SELECT order_id, table_id, customer_id, waiter_id, order_time, order_status FROM remote_orders."ORDER" WHERE order_id=%s', (data['id'],), fetchone=True)
+        if row:
+            row['table_number'] = row['table_id']
         return jsonify(success=True, data=serialize_row(row))
     except Exception as e:
         return jsonify(success=False, error=str(e))
@@ -739,6 +751,8 @@ def api_order_fetch():
 @login_required
 def api_order_update():
     data = request.json
+    if 'table_number' in data:
+        data['table_id'] = data['table_number']
     required = ['table_id', 'customer_id', 'waiter_id', 'order_time', 'order_status', 'order_id']
     if not all(k in data for k in required):
         return jsonify(success=False, error="Missing required fields")
@@ -767,6 +781,8 @@ def api_order_delete():
 @login_required
 def api_bill_create():
     data = request.json
+    if 'tax_amount' in data:
+        data['tax'] = data['tax_amount']
     required = ['order_id', 'total_amount', 'tax', 'final_amount']
     if not all(k in data for k in required):
         return jsonify(success=False, error="Missing required fields")
@@ -783,7 +799,9 @@ def api_bill_fetch():
     if not all(k in data for k in required):
         return jsonify(success=False, error="Missing required fields")
     try:
-        row, _ = query_db('SELECT bill_id, order_id, final_amount, bill_time FROM remote_orders.bill WHERE bill_id=%s', (data['id'],), fetchone=True)
+        row, _ = query_db('SELECT bill_id, order_id, total_amount, tax, discount_amount, final_amount, bill_time FROM remote_orders.bill WHERE bill_id=%s', (data['id'],), fetchone=True)
+        if row:
+            row['tax_amount'] = row['tax']
         return jsonify(success=True, data=serialize_row(row))
     except Exception as e:
         return jsonify(success=False, error=str(e))
@@ -791,6 +809,8 @@ def api_bill_fetch():
 @login_required
 def api_bill_update():
     data = request.json
+    if 'tax_amount' in data:
+        data['tax'] = data['tax_amount']
     required = ['order_id', 'total_amount', 'tax', 'final_amount', 'bill_time', 'bill_id']
     if not all(k in data for k in required):
         return jsonify(success=False, error="Missing required fields")
@@ -871,6 +891,8 @@ def api_order_item_delete():
 @login_required
 def api_discount_create():
     data = request.json
+    if 'discount_percentage' in data:
+        data['percentage'] = data['discount_percentage']
     required = ['discount_name', 'percentage', 'valid_from', 'valid_to']
     if not all(k in data for k in required):
         return jsonify(success=False, error="Missing required fields")
@@ -888,6 +910,8 @@ def api_discount_fetch():
         return jsonify(success=False, error="Missing required fields")
     try:
         row, _ = query_db('SELECT * FROM remote_orders.discount WHERE discount_id=%s', (data['id'],), fetchone=True)
+        if row:
+            row['discount_percentage'] = row['percentage']
         return jsonify(success=True, data=serialize_row(row))
     except Exception as e:
         return jsonify(success=False, error=str(e))
@@ -895,6 +919,8 @@ def api_discount_fetch():
 @login_required
 def api_discount_update():
     data = request.json
+    if 'discount_percentage' in data:
+        data['percentage'] = data['discount_percentage']
     required = ['discount_name', 'percentage', 'valid_from', 'valid_to', 'discount_id']
     if not all(k in data for k in required):
         return jsonify(success=False, error="Missing required fields")

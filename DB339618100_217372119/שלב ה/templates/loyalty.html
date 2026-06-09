@@ -34,8 +34,8 @@
                     </td>
                     <td>{{ l.last_updated }}</td>
                     <td class="actions">
-                        <button class="btn btn-sm" onclick="editLoyalty({{ l.loyalty_id }})">✏️ Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteLoyalty({{ l.loyalty_id }})">🗑️ Delete</button>
+                        <button class="btn btn-sm" onclick="editLoyalty(this.dataset.id)" data-id="{{ l.loyalty_id }}">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteLoyalty(this.dataset.id)" data-id="{{ l.loyalty_id }}">🗑️ Delete</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -62,8 +62,8 @@
                         <span class="badge {% if t.level == 'Platinum' %}badge-platinum{% elif t.level == 'Gold' %}badge-gold{% elif t.level == 'Silver' %}badge-silver{% elif t.level == 'Bronze' %}badge-bronze{% else %}badge-info{% endif %}">{{ t.level }}</span>
                     </td>
                     <td class="actions">
-                        <button class="btn btn-sm" onclick="editTier({{ t.tier_id }})">✏️ Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteTier({{ t.tier_id }})">🗑️ Delete</button>
+                        <button class="btn btn-sm" onclick="editTier(this.dataset.id)" data-id="{{ t.tier_id }}">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTier(this.dataset.id)" data-id="{{ t.tier_id }}">🗑️ Delete</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -88,11 +88,11 @@
                 <tr>
                     <td>{{ tr.customer_name }}</td>
                     <td>{{ tr.reason_description }}</td>
-                    <td style="color: {% if tr.points_change > 0 %}#22c55e{% else %}#ef4444{% endif %}; font-weight: 600;">{% if tr.points_change > 0 %}+{% endif %}{{ tr.points_change }}</td>
+                    <td class="{% if tr.points_change > 0 %}points-positive{% else %}points-negative{% endif %}">{% if tr.points_change > 0 %}+{% endif %}{{ tr.points_change }}</td>
                     <td>{{ tr.transaction_date }}</td>
                     <td class="actions">
-                        <button class="btn btn-sm" onclick="editTransaction({{ tr.transaction_id }})">✏️ Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteTransaction({{ tr.transaction_id }})">🗑️ Delete</button>
+                        <button class="btn btn-sm" onclick="editTransaction(this.dataset.id)" data-id="{{ tr.transaction_id }}">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTransaction(this.dataset.id)" data-id="{{ tr.transaction_id }}">🗑️ Delete</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -117,8 +117,8 @@
                 <tr>
                     <td>{{ reason.description }}</td>
                     <td class="actions">
-                        <button class="btn btn-sm" onclick="editReason({{ reason.reason_id }})">✏️ Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteReason({{ reason.reason_id }})">🗑️ Delete</button>
+                        <button class="btn btn-sm" onclick="editReason(this.dataset.id)" data-id="{{ reason.reason_id }}">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteReason(this.dataset.id)" data-id="{{ reason.reason_id }}">🗑️ Delete</button>
                     </td>
                 </tr>
                 {% endfor %}
