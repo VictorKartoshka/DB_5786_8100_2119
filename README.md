@@ -1,77 +1,77 @@
 # DB_5786_8100_2119
-## אליהו עבודי , אורי מגד
+## Eliyahu Avudi, Uri Maged
 
-## מערכת מסעדה, מודול שולחנות
+## Restaurant System — Tables Module
 
-## תוכן עניינים
+## Table of Contents
 
-1. [מבוא](#מבוא)
-2. [4 מסכים](#4-מסכים)
-3. [סכמות מסד נתונים](#סכמות-מסד-נתונים)
-4. [מתודולוגיות אכלוס נתונים](#מתודולוגיות-אכלוס-נתונים)
-5. [גיבוי ושחזור נתונים](#גיבוי-ושחזור-נתונים)
-6. [שלב ב — שאילתות SELECT כפולות (S1–S4)](#שלב-ב--שאילתות-select-כפולות-s1s4)
-7. [שלב ב — שאילתות SELECT נוספות (S5–S8)](#שלב-ב--שאילתות-select-נוספות-s5s8)
-8. [שלב ב — שאילתות DELETE](#שלב-ב--שאילתות-delete)
-9. [שלב ב — שאילתות UPDATE](#שלב-ב--שאילתות-update)
-10. [שלב ב — אילוצים (Constraints)](#שלב-ב--אילוצים-constraints)
-11. [שלב ב — Rollback ו-Commit](#שלב-ב--rollback-ו-commit)
-12. [שלב ב — אינדקסים (Indexes)](#שלב-ב--אינדקסים-indexes)
-13. [שלב ג — אינטגרציה בין מערכות (Customer DB & Orders DB)](#שלב-ג--אינטגרציה-בין-מערכות-customer-db--orders-db)
-14. [שלב ד — תכנות (PL/pgSQL Programming)](#שלב-ד--תכנות-plpgsql-programming)
-15. [שלב ה — אפליקציית ניהול (Web Application)](#שלב-ה--אפליקציית-ניהול-web-application)
+1. [Introduction](#introduction)
+2. [4 Screens](#4-screens)
+3. [Database Schemas](#database-schemas)
+4. [Data Population Methodologies](#data-population-methodologies)
+5. [Data Backup and Recovery](#data-backup-and-recovery)
+6. [Phase B — Dual SELECT Queries (S1–S4)](#phase-b--dual-select-queries-s1s4)
+7. [Phase B — Additional SELECT Queries (S5–S8)](#phase-b--additional-select-queries-s5s8)
+8. [Phase B — DELETE Queries](#phase-b--delete-queries)
+9. [Phase B — UPDATE Queries](#phase-b--update-queries)
+10. [Phase B — Constraints](#phase-b--constraints)
+11. [Phase B — Rollback and Commit](#phase-b--rollback-and-commit)
+12. [Phase B — Indexes](#phase-b--indexes)
+13. [Phase C — Integration Between Systems (Customer DB & Orders DB)](#phase-c--integration-between-systems-customer-db--orders-db)
+14. [Phase D — Programming (PL/pgSQL Programming)](#phase-d--programming-plpgsql-programming)
+15. [Phase E — Management Application (Web Application)](#phase-e--management-application-web-application)
 
 ---
 
-## מבוא
+## Introduction
 
-ארכיטקטורת מסד נתונים יחסית (Relational Database) זו מתוכננת לרכז ולנהל את נתוני התפעול הליבתיים של מסעדה מודרנית. המערכת מתעדת נתונים בלתי משתנים אודות זהויות לקוחות, הזמנות סעודה כרונולוגיות, רשימות המתנה דינמיות ללקוחות מזדמנים, משוב סעודה איכותני, ופנקס תגמולי נאמנות מדורג. 
+This Relational Database architecture is designed to centralize and manage the core operational data of a modern restaurant. The system records immutable data about customer identities, chronological dining reservations, dynamic waitlists for walk-in customers, qualitative dining feedback, and a tiered loyalty rewards ledger.
 
-הפונקציונליות המרכזית מבטיחה כי הנהלת המסעדה תוכל לעקוב באופן רציף אחר מחזור החיים של הלקוח — החל מהזמנת שולחן ועד לצבירת נקודות נאמנות מבוססות עסקאות — תוך אכיפה קפדנית של שלמות כרונולוגית ואילוצים מתמטיים למניעת אנומליות בנתונים.
+The core functionality ensures that restaurant management can continuously track the customer lifecycle — from table booking to transaction-based loyalty point accumulation — while strictly enforcing chronological integrity and mathematical constraints to prevent data anomalies.
 
-## 4 מסכים
+## 4 Screens
 
-## מסך הזמנות
+## Reservations Screen
 
 ![alt text](images/reservation_screen.png)
 
-## מסך רשימת המתנה
+## Waitlist Screen
 
 ![alt text](images/waitlist_screen.png)
 
-## מסך נאמנות
+## Loyalty Screen
 
 ![alt text](images/loyalty_screen.png)
 
-## מסך משוב
+## Feedback Screen
 
 ![alt text](images/Feedback_screen.png)
 
-## סכמות מסד נתונים
+## Database Schemas
 
-## תרשים ישויות-קשרים (ERD)
+## Entity-Relationship Diagram (ERD)
 
 ![alt text](images/Tables_Diagram.png)
 
-## סכמת מסד נתונים (DSD)
+## Database Schema Diagram (DSD)
 
 ![alt text](images/Relational_Schema.png)
 
-## מתודולוגיות אכלוס נתונים
+## Data Population Methodologies
 
 ## Mockaroo
 
 ![alt text](images/Mockaroo.png)
 
-## הכנסה ידנית (Manual Insert)
+## Manual Insert
 
 ![alt text](images/Manual_Insert.png)
 
-## סקריפט Python
+## Python Script
 
 ![alt text](images/Python_Script.png)
 
-## גיבוי ושחזור נתונים
+## Data Backup and Recovery
 
 ![alt text](images/backup1.png)
 
@@ -81,21 +81,21 @@
 
 ---
 
-# שלב ב — דוח שאילתות, אילוצים, טרנזקציות ואינדקסים
+# Phase B — Queries, Constraints, Transactions, and Indexes Report
 
 ---
 
-## שלב ב — שאילתות SELECT כפולות (S1–S4)
+## Phase B — Dual SELECT Queries (S1–S4)
 
-לכל אחת מ-4 השאילתות הבאות מוצגות שתי צורות כתיבה (Form A ו-Form B), כולל הסבר על ההבדל ביניהן ומה יותר יעיל.
+For each of the following 4 queries, two writing forms are presented (Form A and Form B), including an explanation of the difference between them and which is more efficient.
 
 ---
 
-### S1 — דוח חודשי של נפח הזמנות
+### S1 — Monthly Reservation Volume Report
 
-**תיאור:** שאילתא זו מציגה את סך ההזמנות לפי חודש ושנה, כולל גודל קבוצה ממוצע, סך אורחים, ומספר ההזמנות שהושלמו, בוטלו, או סומנו כ-No-Show. השאילתא משמשת את מסך ניהול ההזמנות ולוח הבקרה של ההנהלה לצורך תכנון כוח אדם.
+**Description:** This query displays the total number of reservations by month and year, including average party size, total guests, and the number of reservations that were completed, cancelled, or marked as No-Show. The query is used by the reservations management screen and the management dashboard for staffing planning.
 
-**צורה A — JOIN עם GROUP BY (יעילה יותר):**
+**Form A — JOIN with GROUP BY (more efficient):**
 
 ```sql
 SELECT
@@ -115,17 +115,17 @@ GROUP BY
 ORDER BY reservation_year DESC, reservation_month DESC;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S1 Form A — הרצה](images/s1a_run.png)
+![S1 Form A — Run](images/s1a_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S1 Form A — תוצאה](images/s1a_result.png)
+![S1 Form A — Result](images/s1a_result.png)
 
 ---
 
-**צורה B — שאילתות-משנה מתואמות ב-SELECT (פחות יעילה):**
+**Form B — Correlated Subqueries in SELECT (less efficient):**
 
 ```sql
 SELECT
@@ -161,25 +161,25 @@ FROM (
 ORDER BY reservation_year DESC, reservation_month DESC;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S1 Form B — הרצה](images/s1b_run.png)
+![S1 Form B — Run](images/s1b_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S1 Form B — תוצאה](images/s1b_result.png)
+![S1 Form B — Result](images/s1b_result.png)
 
-**הבדל ויעילות:**
+**Difference and Efficiency:**
 
-צורה A מבצעת סריקה אחת של טבלת RESERVATION עם JOIN ל-STATUS_TYPE ומבצעת את כל האגרגציות (COUNT, AVG, SUM) במעבר יחיד. צורה B לעומתה משתמשת בשאילתות-משנה מתואמות (Correlated Subqueries) ב-SELECT — לכל שורת תוצאה (כל חודש/שנה) מתבצעת סריקה נוספת של טבלת RESERVATION. מדובר ב-N סריקות נפרדות לעומת סריקה אחת בצורה A, ולכן **צורה A יעילה יותר** באופן משמעותי, בייחוד עם כמויות נתונים גדולות.
+Form A performs a single scan of the RESERVATION table with a JOIN to STATUS_TYPE and performs all aggregations (COUNT, AVG, SUM) in a single pass. Form B, by contrast, uses correlated subqueries (Correlated Subqueries) in SELECT — for each result row (each month/year), an additional scan of the RESERVATION table is performed. This means N separate scans compared to a single scan in Form A, making **Form A significantly more efficient**, especially with large data volumes.
 
 ---
 
-### S2 — 10 הלקוחות המובילים לפי הזמנות ונאמנות
+### S2 — Top 10 Customers by Reservations and Loyalty
 
-**תיאור:** שאילתא זו מזהה את הלקוחות הפעילים ביותר במערכת, כולל מספר ההזמנות שלהם, דירוג ממוצע של המשוב, נקודות נאמנות, ורמה (Tier). השאילתא מפעילה את מסך הנאמנות ואת הברכה האישית ללקוח.
+**Description:** This query identifies the most active customers in the system, including their number of reservations, average feedback rating, loyalty points, and tier level. The query powers the loyalty screen and the personalized customer greeting.
 
-**צורה A — JOIN-based (יעילה יותר):**
+**Form A — JOIN-based (more efficient):**
 
 ```sql
 SELECT
@@ -202,17 +202,17 @@ ORDER BY total_reservations DESC, avg_rating DESC
 LIMIT 10;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S2 Form A — הרצה](images/s2a_run.png)
+![S2 Form A — Run](images/s2a_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S2 Form A — תוצאה](images/s2a_result.png)
+![S2 Form A — Result](images/s2a_result.png)
 
 ---
 
-**צורה B — שאילתות-משנה מתואמות (פחות יעילה):**
+**Form B — Correlated Subqueries (less efficient):**
 
 ```sql
 SELECT
@@ -240,25 +240,25 @@ ORDER BY total_reservations DESC, avg_rating DESC
 LIMIT 10;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S2 Form B — הרצה](images/s2b_run.png)
+![S2 Form B — Run](images/s2b_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S2 Form B — תוצאה](images/s2b_result.png)
+![S2 Form B — Result](images/s2b_result.png)
 
-**הבדל ויעילות:**
+**Difference and Efficiency:**
 
-צורה A מבצעת תוכנית ביצוע אחת שמצרפת (JOIN) את כל 5 הטבלאות בסריקה אחת, כאשר מנוע ה-DB יכול להשתמש ב-Hash Join או Merge Join. צורה B מריצה 2 שאילתות-משנה מתואמות נפרדות (ספירת הזמנות + ממוצע דירוג) עבור **כל שורת לקוח** — עם 500 לקוחות, זה עשוי לגרום ל-~1000 סריקות נוספות. **צורה A יעילה יותר** כי היא נמנעת מסריקות חוזרות.
+Form A executes a single execution plan that joins all 5 tables in one pass, allowing the DB engine to use Hash Join or Merge Join. Form B runs 2 separate correlated subqueries (reservation count + average rating) for **each customer row** — with 500 customers, this can result in ~1000 additional scans. **Form A is more efficient** because it avoids repeated scans.
 
 ---
 
-### S3 — רשימת המתנה פעילה עם פרטי לקוח
+### S3 — Active Waitlist with Customer Details
 
-**תיאור:** שאילתא זו מפעילה את מסך ניהול רשימת ההמתנה ומציגה לקוחות ברשימת ההמתנה שהם גם בעלי חשבון נאמנות, ממוינים לפי זמן הבקשה. מוצגים: מיקום, שם לקוח, גודל קבוצה, זמן כניסה, זמן המתנה משוער, סטטוס, ורמת נאמנות.
+**Description:** This query powers the waitlist management screen and displays customers on the waitlist who also have a loyalty account, sorted by request time. Displayed fields: position, customer name, party size, join time, estimated wait time, status, and loyalty tier.
 
-**צורה A — שימוש ב-IN (קריאה טובה יותר):**
+**Form A — Using IN (better readability):**
 
 ```sql
 SELECT
@@ -281,17 +281,17 @@ AND EXTRACT(YEAR FROM w.request_time) >= 2024
 ORDER BY w.request_time ASC;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S3 Form A — הרצה](images/s3a_run.png)
+![S3 Form A — Run](images/s3a_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S3 Form A — תוצאה](images/s3a_result.png)
+![S3 Form A — Result](images/s3a_result.png)
 
 ---
 
-**צורה B — שימוש ב-EXISTS (יעילה יותר למאגרים גדולים):**
+**Form B — Using EXISTS (more efficient for large datasets):**
 
 ```sql
 SELECT
@@ -315,25 +315,25 @@ AND EXTRACT(YEAR FROM w.request_time) >= 2024
 ORDER BY w.request_time ASC;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S3 Form B — הרצה](images/s3b_run.png)
+![S3 Form B — Run](images/s3b_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S3 Form B — תוצאה](images/s3b_result.png)
+![S3 Form B — Result](images/s3b_result.png)
 
-**הבדל ויעילות:**
+**Difference and Efficiency:**
 
-צורה A משתמשת ב-IN אשר ממש את רשימת ה-Customer_ID הפעילים ורק אז מסננת. צורה B משתמשת ב-EXISTS שפועלת לפי עקרון "קצר-רשת" (Short-Circuit) — היא מפסיקה לסרוק את השאילתה הפנימית ברגע שמוצאת התאמה ראשונה לשורה הנוכחית, בעוד ש-IN חייבת לממש את כל תוצאות השאילתה הפנימית. **צורה B (EXISTS) יעילה יותר** כאשר הטבלה הפנימית גדולה, כי היא לא צריכה לבנות רשימה מלאה בזיכרון.
+Form A uses IN, which materializes the list of active Customer_IDs and then filters. Form B uses EXISTS, which operates on a "Short-Circuit" principle — it stops scanning the inner query as soon as it finds the first match for the current row, while IN must materialize all results of the inner query. **Form B (EXISTS) is more efficient** when the inner table is large, because it doesn't need to build a full list in memory.
 
 ---
 
-### S4 — פעילות נקודות נאמנות לפי סיבה ורבעון
+### S4 — Loyalty Points Activity by Reason and Quarter
 
-**תיאור:** שאילתא זו מפרקת את עסקאות נקודות הנאמנות לפי סיבת עסקה ורבעון קלנדרי, ומציגה סיכומים וספירות. השאילתא מפעילה את הפאנל "עסקאות אחרונות" במסך הנאמנות. כוללת פילוח לפי שנה ורבעון עם EXTRACT.
+**Description:** This query breaks down loyalty point transactions by transaction reason and calendar quarter, displaying summaries and counts. The query powers the "Recent Transactions" panel on the loyalty screen. Includes segmentation by year and quarter using EXTRACT.
 
-**צורה A — JOIN עם GROUP BY (יעילה יותר):**
+**Form A — JOIN with GROUP BY (more efficient):**
 
 ```sql
 SELECT
@@ -354,17 +354,17 @@ HAVING COUNT(*) > 5
 ORDER BY transaction_year DESC, transaction_quarter DESC, total_points DESC;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S4 Form A — הרצה](images/s4a_run.png)
+![S4 Form A — Run](images/s4a_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S4 Form A — תוצאה](images/s4a_result.png)
+![S4 Form A — Result](images/s4a_result.png)
 
 ---
 
-**צורה B — שאילתת-משנה מקוננת עם WHERE IN (פחות יעילה):**
+**Form B — Nested Subquery with WHERE IN (less efficient):**
 
 ```sql
 SELECT
@@ -386,27 +386,27 @@ HAVING COUNT(*) > 5
 ORDER BY transaction_year DESC, transaction_quarter DESC, total_points DESC;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S4 Form B — הרצה](images/s4b_run.png)
+![S4 Form B — Run](images/s4b_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S4 Form B — תוצאה](images/s4b_result.png)
+![S4 Form B — Result](images/s4b_result.png)
 
-**הבדל ויעילות:**
+**Difference and Efficiency:**
 
-צורה A מבצעת סריקה אחת של LOYALTY_TRANSACTION עם JOIN ל-REASON ול-LOYALTY, כאשר ה-DB מקבץ ומאגרג במעבר יחיד. צורה B מסננת תחילה את LOYALTY_TRANSACTION לפי שם סיבה (שדורש JOIN ל-REASON), ואז השאילתה החיצונית סורקת שוב ומאגרגת. בנוסף, שאילתת-המשנה ב-SELECT (`SELECT rn.description...`) מורצת עבור כל שורת תוצאה. גישה דו-שלבית זו איטית יותר מהמעבר היחיד של צורה A. **צורה A יעילה יותר.**
-
----
-
-## שלב ב — שאילתות SELECT נוספות (S5–S8)
+Form A performs a single scan of LOYALTY_TRANSACTION with JOINs to REASON and LOYALTY, grouping and aggregating in a single pass. Form B first filters LOYALTY_TRANSACTION by reason name (requiring a JOIN to REASON), then the outer query scans and aggregates again. Additionally, the subquery in SELECT (`SELECT rn.description...`) is executed for each result row. This two-step approach is slower than Form A's single pass. **Form A is more efficient.**
 
 ---
 
-### S5 — דירוג משוב ממוצע לפי יום בשבוע
+## Phase B — Additional SELECT Queries (S5–S8)
 
-**תיאור:** שאילתא זו מציגה אילו ימים בשבוע מקבלים את הדירוגים הטובים והגרועים ביותר מלקוחות, ומסייעת לייעל את כוח האדם ואיכות השירות. כוללת: ספירת ביקורות, דירוג ממוצע, דירוג נמוך/גבוה ביותר, וספירת ביקורות חיוביות ושליליות.
+---
+
+### S5 — Average Feedback Rating by Day of Week
+
+**Description:** This query shows which days of the week receive the best and worst ratings from customers, helping optimize staffing and service quality. Includes: review count, average rating, lowest/highest rating, and count of positive and negative reviews.
 
 ```sql
 SELECT
@@ -432,19 +432,19 @@ GROUP BY EXTRACT(DOW FROM r.datetime)
 ORDER BY avg_rating DESC;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S5 — הרצה](images/s5_run.png)
+![S5 — Run](images/s5_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S5 — תוצאה](images/s5_result.png)
+![S5 — Result](images/s5_result.png)
 
 ---
 
-### S6 — הזמנות שהושלמו ללא משוב
+### S6 — Completed Reservations Without Feedback
 
-**תיאור:** שאילתא זו מזהה הזמנות שהושלמו אך טרם הוזן להן משוב, כדי שצוות המסעדה יוכל לשלוח מיילי בקשה לביקורת. משתמשת ב-LEFT JOIN עם IS NULL לאיתור רשומות חסרות.
+**Description:** This query identifies reservations that have been completed but have not yet received feedback, so the restaurant team can send review request emails. Uses LEFT JOIN with IS NULL to find missing records.
 
 ```sql
 SELECT
@@ -466,19 +466,19 @@ ORDER BY r.datetime DESC
 LIMIT 50;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S6 — הרצה](images/s6_run.png)
+![S6 — Run](images/s6_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S6 — תוצאה](images/s6_result.png)
+![S6 — Result](images/s6_result.png)
 
 ---
 
-### S7 — פרופיל לקוח מלא עם עסקאות נאמנות
+### S7 — Full Customer Profile with Loyalty Transactions
 
-**תיאור:** עבור לקוח נתון (Customer_ID = 1), השאילתא מציגה את עסקאות הנאמנות האחרונות שלו כולל: סיבה, פירוט תאריך (יום, חודש, שנה), נקודות נוכחיות, רמה נוכחית, ומרחק בנקודות לרמה הבאה. השאילתא מפעילה את רשימת "העסקאות האחרונות" במסך הנאמנות.
+**Description:** For a given customer (Customer_ID = 1), the query displays their recent loyalty transactions including: reason, date breakdown (day, month, year), current points, current tier, and points distance to the next tier. The query powers the "Recent Transactions" list on the loyalty screen.
 
 ```sql
 SELECT
@@ -506,19 +506,19 @@ ORDER BY lt_txn.created_at DESC
 LIMIT 20;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S7 — הרצה](images/s7_run.png)
+![S7 — Run](images/s7_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S7 — תוצאה](images/s7_result.png)
+![S7 — Result](images/s7_result.png)
 
 ---
 
-### S8 — דירוג החודשים העמוסים ביותר (מגמות עונתיות)
+### S8 — Ranking the Busiest Months (Seasonal Trends)
 
-**תיאור:** השאילתא מדרגת חודשים לפי סך האורחים שהתארחו לאורך כל השנים, וחושפת דפוסים עונתיים לצורך תכנון קיבולת. השאילתא משתמשת בפונקציית חלון RANK() לדירוג חודשים בתוך כל שנה.
+**Description:** The query ranks months by total guests served across all years, revealing seasonal patterns for capacity planning. The query uses the RANK() window function to rank months within each year.
 
 ```sql
 SELECT
@@ -540,23 +540,23 @@ GROUP BY
 ORDER BY res_year DESC, month_rank_by_guests ASC;
 ```
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![S8 — הרצה](images/s8_run.png)
+![S8 — Run](images/s8_run.png)
 
-**צילום תוצאה:**
+**Result Screenshot:**
 
-![S8 — תוצאה](images/s8_result.png)
-
----
-
-## שלב ב — שאילתות DELETE
+![S8 — Result](images/s8_result.png)
 
 ---
 
-### D1 — מחיקת רשומות רשימת המתנה שפגו תוקף (מעל שנה)
+## Phase B — DELETE Queries
 
-**תיאור:** מחיקת רשומות רשימת המתנה בסטטוס 'Expired' שישנות מעל שנה. שומרת על טבלת רשימת ההמתנה רזה ויעילה.
+---
+
+### D1 — Delete Expired Waitlist Records (Over One Year Old)
+
+**Description:** Deletes waitlist records with 'Expired' status that are more than one year old. Keeps the waitlist table lean and efficient.
 
 ```sql
 DELETE FROM WAITLIST
@@ -564,26 +564,26 @@ WHERE status_ID = (SELECT status_ID FROM STATUS_TYPE WHERE description = 'Expire
   AND request_time < CURRENT_DATE - INTERVAL '1 year';
 ```
 
-**צילום מסד הנתונים לפני המחיקה:**
+**Database state before deletion:**
 
-![D1 — לפני](images/d1_before.png)
+![D1 — Before](images/d1_before.png)
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![D1 — הרצה](images/d1_run.png)
+![D1 — Run](images/d1_run.png)
 
-**צילום מסד הנתונים אחרי המחיקה:**
+**Database state after deletion:**
 
-![D1 — אחרי](images/d1_after.png)
+![D1 — After](images/d1_after.png)
 
 ---
 
-### D2 — מחיקת הזמנות שבוטלו לפני יותר משנתיים
+### D2 — Delete Cancelled Reservations Older Than Two Years
 
-**תיאור:** תחילה מוחקת משוב המקושר להזמנות שבוטלו לפני מעל שנתיים, ואז מוחקת את ההזמנות עצמן. מכבדת אילוצי Foreign Key על ידי מחיקת רשומות ילד תחילה.
+**Description:** First deletes feedback linked to cancelled reservations older than two years, then deletes the reservations themselves. Respects Foreign Key constraints by deleting child records first.
 
 ```sql
--- שלב 1: מחיקת משוב המקושר להזמנות ישנות שבוטלו
+-- Step 1: Delete feedback linked to old cancelled reservations
 DELETE FROM FEEDBACK
 WHERE reservation_ID IN (
     SELECT r.reservation_ID
@@ -593,29 +593,29 @@ WHERE reservation_ID IN (
       AND r.datetime < CURRENT_DATE - INTERVAL '2 years'
 );
 
--- שלב 2: מחיקת ההזמנות הישנות שבוטלו עצמן
+-- Step 2: Delete the old cancelled reservations themselves
 DELETE FROM RESERVATION
 WHERE status_ID = (SELECT status_ID FROM STATUS_TYPE WHERE description = 'Cancelled')
   AND datetime < CURRENT_DATE - INTERVAL '2 years';
 ```
 
-**צילום מסד הנתונים לפני המחיקה:**
+**Database state before deletion:**
 
-![D2 — לפני](images/d2_before.png)
+![D2 — Before](images/d2_before.png)
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![D2 — הרצה](images/d2_run.png)
+![D2 — Run](images/d2_run.png)
 
-**צילום מסד הנתונים אחרי המחיקה:**
+**Database state after deletion:**
 
-![D2 — אחרי](images/d2_after.png)
+![D2 — After](images/d2_after.png)
 
 ---
 
-### D3 — מחיקת עסקאות נאמנות ללקוחות מושבתים עם אפס נקודות
+### D3 — Delete Loyalty Transactions for Inactive Customers with Zero Points
 
-**תיאור:** מסירה רשומות עסקאות נאמנות עבור לקוחות שהושבתו (is_active = 0) ויש להם אפס נקודות. רשומות אלו אינן רלוונטיות עוד לפעולה.
+**Description:** Removes loyalty transaction records for customers who have been deactivated (is_active = 0) and have zero points. These records are no longer operationally relevant.
 
 ```sql
 DELETE FROM LOYALTY_TRANSACTION
@@ -628,27 +628,27 @@ WHERE loyalty_ID IN (
 );
 ```
 
-**צילום מסד הנתונים לפני המחיקה:**
+**Database state before deletion:**
 
-![D3 — לפני](images/d3_before.png)
+![D3 — Before](images/d3_before.png)
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![D3 — הרצה](images/d3_run.png)
+![D3 — Run](images/d3_run.png)
 
-**צילום מסד הנתונים אחרי המחיקה:**
+**Database state after deletion:**
 
-![D3 — אחרי](images/d3_before.png)
-
----
-
-## שלב ב — שאילתות UPDATE
+![D3 — After](images/d3_before.png)
 
 ---
 
-### U1 — שדרוג אוטומטי של רמת נאמנות לפי נקודות
+## Phase B — UPDATE Queries
 
-**תיאור:** מעדכנת אוטומטית את רמת הנאמנות של כל לקוח בהתאם ליתרת הנקודות שלו: Bronze (0–2500), Silver (2501–5000), Gold (5001–7500), Platinum (7501+).
+---
+
+### U1 — Automatic Loyalty Tier Upgrade Based on Points
+
+**Description:** Automatically updates each customer's loyalty tier based on their current point balance: Bronze (0–2500), Silver (2501–5000), Gold (5001–7500), Platinum (7501+).
 
 ```sql
 UPDATE LOYALTY
@@ -661,23 +661,23 @@ END,
 last_Updated = CURRENT_DATE;
 ```
 
-**צילום מסד הנתונים לפני העדכון:**
+**Database state before update:**
 
-![U1 — לפני](images/u1_before.png)
+![U1 — Before](images/u1_before.png)
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![U1 — הרצה](images/u1_run.png)
+![U1 — Run](images/u1_run.png)
 
-**צילום מסד הנתונים אחרי העדכון:**
+**Database state after update:**
 
-![U1 — אחרי](images/u1_after.png)
+![U1 — After](images/u1_after.png)
 
 ---
 
-### U2 — סימון הזמנות שאושרו בעבר כ-Completed
+### U2 — Mark Past Confirmed Reservations as Completed
 
-**תיאור:** מעדכנת אוטומטית הזמנות שתאריכן כבר עבר ועדיין מסומנות 'Confirmed' לסטטוס 'Completed'.
+**Description:** Automatically updates reservations whose date has already passed and are still marked 'Confirmed' to 'Completed' status.
 
 ```sql
 UPDATE RESERVATION
@@ -686,23 +686,23 @@ WHERE datetime < CURRENT_DATE
   AND status_ID = (SELECT status_ID FROM STATUS_TYPE WHERE description = 'Confirmed');
 ```
 
-**צילום מסד הנתונים לפני העדכון:**
+**Database state before update:**
 
-![U2 — לפני](images/u2_before.png)
+![U2 — Before](images/u2_before.png)
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![U2 — הרצה](images/u2_run.png)
+![U2 — Run](images/u2_run.png)
 
-**צילום מסד הנתונים אחרי העדכון:**
+**Database state after update:**
 
-![U2 — אחרי](images/u2_after.png)
+![U2 — After](images/u2_after.png)
 
 ---
 
-### U3 — השבתת לקוחות לא פעילים (ללא הזמנה מעל שנתיים)
+### U3 — Deactivate Inactive Customers (No Reservation for Over Two Years)
 
-**תיאור:** מגדירה is_active = 0 ללקוחות שלא ביצעו הזמנה מעל שנתיים. משתמשת בשאילתת-משנה NOT EXISTS לבדיקת פעילות אחרונה.
+**Description:** Sets is_active = 0 for customers who have not made a reservation in over two years. Uses a NOT EXISTS subquery to check for recent activity.
 
 ```sql
 UPDATE CUSTOMER
@@ -716,27 +716,27 @@ WHERE is_active = 1
   );
 ```
 
-**צילום מסד הנתונים לפני העדכון:**
+**Database state before update:**
 
-![U3 — לפני](images/u3_before.png)
+![U3 — Before](images/u3_before.png)
 
-**צילום הרצה:**
+**Execution Screenshot:**
 
-![U3 — הרצה](images/u3_run.png)
+![U3 — Run](images/u3_run.png)
 
-**צילום מסד הנתונים אחרי העדכון:**
+**Database state after update:**
 
-![U3 — אחרי](images/u3_before.png)
-
----
-
-## שלב ב — אילוצים (Constraints)
+![U3 — After](images/u3_before.png)
 
 ---
 
-### אילוץ 1 — תאריך הזמנה חייב להיות לאחר תאריך היצירה
+## Phase B — Constraints
 
-**תיאור השינוי:** הוספת אילוץ CHECK על טבלת RESERVATION המבטיח שהתאריך המתוכנן לסעודה (datetime) חייב להיות שווה או מאוחר יותר מתאריך יצירת ההזמנה (created_at). זה מונע יצירת הזמנות לתאריכים שכבר עברו יחסית לרגע היצירה.
+---
+
+### Constraint 1 — Reservation Date Must Be After Creation Date
+
+**Description of change:** Added a CHECK constraint on the RESERVATION table ensuring that the planned dining date (datetime) must be equal to or later than the reservation creation date (created_at). This prevents creating reservations for dates that have already passed relative to the moment of creation.
 
 ```sql
 ALTER TABLE RESERVATION
@@ -744,21 +744,21 @@ ADD CONSTRAINT chk_reservation_future_date
 CHECK (datetime >= created_at);
 ```
 
-**ניסיון הכנסת נתונים סותרים (ושגיאת הרצה):**
+**Attempt to insert conflicting data (and execution error):**
 
 ```sql
--- ניסיון ליצור הזמנה עם datetime לפני created_at — צפוי להיכשל
+-- Attempt to create a reservation with datetime before created_at — expected to fail
 INSERT INTO RESERVATION (reservation_ID, Customer_ID, status_ID, party_size, datetime, created_at)
 VALUES (99999, 1, 1, 4, '2023-01-01 12:00:00', '2025-06-01 10:00:00');
 ```
 
-![אילוץ 1 — שגיאה](images/constraint1_error.png)
+![Constraint 1 — Error](images/constraint1_error.png)
 
 ---
 
-### אילוץ 2 — תגובת משוב חייבת להיות בעלת משמעות (לפחות 4 תווים)
+### Constraint 2 — Feedback Comment Must Be Meaningful (At Least 4 Characters)
 
-**תיאור השינוי:** הוספת אילוץ CHECK על טבלת FEEDBACK המבטיח שאם לקוח משאיר תגובה, היא חייבת להכיל לפחות 4 תווים (לאחר חיתוך רווחים). תגובות כמו "Ok", "No" או שגיאות הקלדה של אות אחת נדחות. ערך NULL מותר (הלקוח לא חייב להשאיר תגובה).
+**Description of change:** Added a CHECK constraint on the FEEDBACK table ensuring that if a customer leaves a comment, it must contain at least 4 characters (after trimming whitespace). Comments like "Ok", "No", or single-letter typos are rejected. NULL is allowed (the customer is not required to leave a comment).
 
 ```sql
 ALTER TABLE FEEDBACK
@@ -766,21 +766,21 @@ ADD CONSTRAINT chk_meaningful_comment
 CHECK (comment IS NULL OR LENGTH(TRIM(comment)) >= 4);
 ```
 
-**ניסיון הכנסת נתונים סותרים (ושגיאת הרצה):**
+**Attempt to insert conflicting data (and execution error):**
 
 ```sql
--- ניסיון להכניס משוב עם תגובה קצרה מדי — צפוי להיכשל
+-- Attempt to insert feedback with a comment that is too short — expected to fail
 INSERT INTO FEEDBACK (feedback_ID, reservation_ID, rating, comment, feedback_date)
 VALUES (99999, 1, 5, 'Ok', CURRENT_DATE);
 ```
 
-![אילוץ 2 — שגיאה](images/constraint2_error.png)
+![Constraint 2 — Error](images/constraint2_error.png)
 
 ---
 
-### אילוץ 3 — שם פרטי ושם משפחה לא יכולים להיות זהים
+### Constraint 3 — First Name and Last Name Cannot Be Identical
 
-**תיאור השינוי:** הוספת אילוץ CHECK על טבלת CUSTOMER המבטיח ששם פרטי ושם משפחה של לקוח לא יהיו זהים (בהשוואה case-insensitive). מצב כזה מעיד בדרך כלל על שגיאת הזנת נתונים (למשל "John John").
+**Description of change:** Added a CHECK constraint on the CUSTOMER table ensuring that a customer's first name and last name cannot be the same (compared case-insensitively). Such a situation usually indicates a data entry error (e.g., "John John").
 
 ```sql
 ALTER TABLE CUSTOMER
@@ -788,27 +788,27 @@ ADD CONSTRAINT chk_names_different
 CHECK (LOWER(first_name) <> LOWER(last_name));
 ```
 
-**ניסיון הכנסת נתונים סותרים (ושגיאת הרצה):**
+**Attempt to insert conflicting data (and execution error):**
 
 ```sql
--- ניסיון להכניס לקוח עם שם פרטי ומשפחה זהים — צפוי להיכשל
+-- Attempt to insert a customer with identical first and last name — expected to fail
 INSERT INTO CUSTOMER (Customer_ID, first_name, last_name, phone, email, created_at, is_active)
 VALUES (99999, 'John', 'John', '0501234567', 'john@example.com', CURRENT_DATE, 1);
 ```
 
-![אילוץ 3 — שגיאה](images/constraint3_error.png)
+![Constraint 3 — Error](images/constraint3_error.png)
 
 ---
 
-## שלב ב — Rollback ו-Commit
+## Phase B — Rollback and Commit
 
 ---
 
-### דוגמה 1: ROLLBACK — עדכון נקודות נאמנות וביטול השינוי
+### Example 1: ROLLBACK — Loyalty Points Update and Reverting the Change
 
-**תרחיש:** מנהל מוסיף בטעות 9999 נקודות לחשבון הנאמנות של לקוח 1. נציג את השינוי, ואז נבצע ROLLBACK לביטולו.
+**Scenario:** A manager accidentally adds 9999 points to customer 1's loyalty account. We will show the change, then perform a ROLLBACK to undo it.
 
-**שלב 1 — מצב BEFORE (לפני השינוי):**
+**Step 1 — BEFORE state (before the change):**
 
 ```sql
 SELECT c.first_name || ' ' || c.last_name AS customer_name, l.points, lt.level AS tier
@@ -818,10 +818,10 @@ JOIN LOYALTY_TIER lt ON l.tier_id = lt.tier_id
 WHERE c.Customer_ID = 1;
 ```
 
-![Rollback — שלב 1 (Before)](images/rollback_step1.png)
+![Rollback — Step 1 (Before)](images/rollback_step1.png)
 
 
-**שלב 2 — פתיחת טרנזקציה וביצוע UPDATE:**
+**Step 2 — Open transaction and perform UPDATE:**
 
 ```sql
 BEGIN;
@@ -831,7 +831,7 @@ SET points = 9999, last_Updated = CURRENT_DATE
 WHERE Customer_ID = 1;
 ```
 
-**שלב 3 — מצב AFTER (לאחר העדכון, לפני Rollback):**
+**Step 3 — AFTER state (after the update, before Rollback):**
 
 ```sql
 SELECT c.first_name || ' ' || c.last_name AS customer_name, l.points, lt.level AS tier
@@ -841,15 +841,15 @@ JOIN LOYALTY_TIER lt ON l.tier_id = lt.tier_id
 WHERE c.Customer_ID = 1;
 ```
 
-![Rollback — שלב 3 (After Update)](images/rollback_step3.png)
+![Rollback — Step 3 (After Update)](images/rollback_step3.png)
 
-**שלב 4 — ביצוע ROLLBACK:**
+**Step 4 — Perform ROLLBACK:**
 
 ```sql
 ROLLBACK;
 ```
 
-**שלב 5 — מצב RESTORED (לאחר הביטול):**
+**Step 5 — RESTORED state (after the rollback):**
 
 ```sql
 SELECT c.first_name || ' ' || c.last_name AS customer_name, l.points, lt.level AS tier
@@ -859,15 +859,15 @@ JOIN LOYALTY_TIER lt ON l.tier_id = lt.tier_id
 WHERE c.Customer_ID = 1;
 ```
 
-![Rollback — שלב 5 (Restored)](images/rollback_step5.png)
+![Rollback — Step 5 (Restored)](images/rollback_step5.png)
 
 ---
 
-### דוגמה 2: COMMIT — עדכון סטטוס הזמנה ושמירת השינוי
+### Example 2: COMMIT — Reservation Status Update and Saving the Change
 
-**תרחיש:** מארח מאשר הזמנה ממתינה (ID = 1). נעדכן את הסטטוס ל-'Confirmed', נבצע COMMIT ונוודא שהשינוי נשמר.
+**Scenario:** A host confirms a pending reservation (ID = 1). We will update the status to 'Confirmed', perform a COMMIT, and verify that the change is saved.
 
-**שלב 1 — מצב BEFORE (לפני השינוי):**
+**Step 1 — BEFORE state (before the change):**
 
 ```sql
 SELECT r.reservation_ID, c.first_name || ' ' || c.last_name AS customer_name,
@@ -878,9 +878,9 @@ JOIN STATUS_TYPE st ON r.status_ID = st.status_ID
 WHERE r.reservation_ID = 1;
 ```
 
-![Commit — שלב 1 (Before)](images/commit_step1.png)
+![Commit — Step 1 (Before)](images/commit_step1.png)
 
-**שלב 2 — פתיחת טרנזקציה וביצוע UPDATE:**
+**Step 2 — Open transaction and perform UPDATE:**
 
 ```sql
 BEGIN;
@@ -891,7 +891,7 @@ SET status_ID = (SELECT status_ID FROM STATUS_TYPE WHERE description = 'Confirme
 WHERE reservation_ID = 1;
 ```
 
-**שלב 3 — מצב AFTER (לאחר העדכון, לפני Commit):**
+**Step 3 — AFTER state (after the update, before Commit):**
 
 ```sql
 SELECT r.reservation_ID, c.first_name || ' ' || c.last_name AS customer_name,
@@ -902,15 +902,15 @@ JOIN STATUS_TYPE st ON r.status_ID = st.status_ID
 WHERE r.reservation_ID = 1;
 ```
 
-![Commit — שלב 3 (After Update)](images/commit_step3.png)
+![Commit — Step 3 (After Update)](images/commit_step3.png)
 
-**שלב 4 — ביצוע COMMIT:**
+**Step 4 — Perform COMMIT:**
 
 ```sql
 COMMIT;
 ```
 
-**שלב 5 — מצב FINAL (לאחר ה-Commit — השינוי קבוע):**
+**Step 5 — FINAL state (after the Commit — change is permanent):**
 
 ```sql
 SELECT r.reservation_ID, c.first_name || ' ' || c.last_name AS customer_name,
@@ -921,100 +921,100 @@ JOIN STATUS_TYPE st ON r.status_ID = st.status_ID
 WHERE r.reservation_ID = 1;
 ```
 
-![Commit — שלב 5 (Final)](images/commit_step3.png)
+![Commit — Step 5 (Final)](images/commit_step3.png)
 
 ---
 
-## שלב ב — אינדקסים (Indexes)
+## Phase B — Indexes
 
 ---
 
-### אינדקס 1 — `idx_reservation_customer` על RESERVATION(Customer_ID)
+### Index 1 — `idx_reservation_customer` on RESERVATION(Customer_ID)
 
-**תיאור:** שאילתות SELECT רבות (S1, S2, S3, S6, S7, S8) מבצעות JOIN בין RESERVATION ל-CUSTOMER. אינדקס על Customer_ID מאיץ את חיפוש ההתאמות.
+**Description:** Many SELECT queries (S1, S2, S3, S6, S7, S8) perform JOINs between RESERVATION and CUSTOMER. An index on Customer_ID accelerates the matching lookups.
 
 ```sql
 CREATE INDEX IF NOT EXISTS idx_reservation_customer
 ON RESERVATION (Customer_ID);
 ```
 
-**זמן ריצה לפני הוספת האינדקס:**
+**Execution time before adding the index:**
 
-![אינדקס 1 — לפני](images/index1_before.png)
+![Index 1 — Before](images/index1_before.png)
 
-**זמן ריצה לאחר הוספת האינדקס:**
+**Execution time after adding the index:**
 
-![אינדקס 1 — אחרי](images/index1_after.png)
+![Index 1 — After](images/index1_after.png)
 
 ---
 
-### אינדקס 2 — `idx_reservation_datetime` על RESERVATION(datetime)
+### Index 2 — `idx_reservation_datetime` on RESERVATION(datetime)
 
-**תיאור:** שאילתות S1, S6, S8, ו-U2 כולן מסננות או מקבצות לפי תאריך ההזמנה (datetime). אינדקס על עמודה זו משפר את ביצועי GROUP BY וסריקות טווח (range scans).
+**Description:** Queries S1, S6, S8, and U2 all filter or group by reservation date (datetime). An index on this column improves the performance of GROUP BY and range scans.
 
 ```sql
 CREATE INDEX IF NOT EXISTS idx_reservation_datetime
 ON RESERVATION (datetime);
 ```
 
-**זמן ריצה לפני הוספת האינדקס:**
+**Execution time before adding the index:**
 
-![אינדקס 2 — לפני](images/index2_before.png)
+![Index 2 — Before](images/index2_before.png)
 
-**זמן ריצה לאחר הוספת האינדקס:**
+**Execution time after adding the index:**
 
-![אינדקס 2 — אחרי](images/index2_after.png)
+![Index 2 — After](images/index2_after.png)
 
 ---
 
-### אינדקס 3 — `idx_loyalty_txn_created` על LOYALTY_TRANSACTION(created_at)
+### Index 3 — `idx_loyalty_txn_created` on LOYALTY_TRANSACTION(created_at)
 
-**תיאור:** שאילתא S4 מקבצת לפי EXTRACT(YEAR/QUARTER) מ-created_at. אינדקס על עמודה זו מאיץ את האגרגציה מבוססת התאריך.
+**Description:** Query S4 groups by EXTRACT(YEAR/QUARTER) from created_at. An index on this column accelerates the date-based aggregation.
 
 ```sql
 CREATE INDEX IF NOT EXISTS idx_loyalty_txn_created
 ON LOYALTY_TRANSACTION (created_at);
 ```
 
-**זמן ריצה לפני הוספת האינדקס:**
+**Execution time before adding the index:**
 
-![אינדקס 3 — לפני](images/index3_before.png)
+![Index 3 — Before](images/index3_before.png)
 
-**זמן ריצה לאחר הוספת האינדקס:**
+**Execution time after adding the index:**
 
-![אינדקס 3 — אחרי](images/index3_after.png)
-
----
-
-### הסבר תוצאות האינדקסים
-
-האינדקסים משפיעים על ביצועים בכך שהם מאפשרים למנוע מסד הנתונים לגשת ישירות לשורות הרלוונטיות במקום לבצע **Full Table Scan** (סריקה מלאה של הטבלה). ללא אינדקס, מנוע ה-DB חייב לעבור על כל שורה בטבלה כדי למצוא התאמות. עם אינדקס, הוא משתמש במבנה נתונים מסוג **B-Tree** שמאפשר חיפוש לוגריתמי (O(log n)) במקום ליניארי (O(n)).
-
-בפרט:
-- **אינדקס על Customer_ID:** מאיץ פעולות JOIN כי ה-DB יכול לאתר את כל ההזמנות של לקוח מסוים ללא סריקת הטבלה המלאה.
-- **אינדקס על datetime:** מאיץ שאילתות עם סינון טווח תאריכים ו-GROUP BY, כי הנתונים כבר ממוינים באינדקס.
-- **אינדקס על created_at:** מאיץ את פירוק התאריך (EXTRACT) ב-GROUP BY, כי ה-DB יכול לסרוק את האינדקס בסדר כרונולוגי.
-
-> **הערה:** השיפור בולט יותר ככל שהטבלה גדולה יותר. עם כ-40,000+ רשומות, ההבדל בזמני הריצה ניכר.
+![Index 3 — After](images/index3_after.png)
 
 ---
 
-# שלב ג — אינטגרציה בין מערכות (Customer DB & Orders DB)
+### Explanation of Index Results
 
-## תתרשימי הDSD ERD
+Indexes impact performance by allowing the database engine to access relevant rows directly instead of performing a **Full Table Scan**. Without an index, the DB engine must iterate over every row in the table to find matches. With an index, it uses a **B-Tree** data structure that enables logarithmic search (O(log n)) instead of linear (O(n)).
+
+Specifically:
+- **Index on Customer_ID:** Accelerates JOIN operations because the DB can locate all reservations for a specific customer without scanning the entire table.
+- **Index on datetime:** Accelerates queries with date range filtering and GROUP BY, because the data is already sorted in the index.
+- **Index on created_at:** Accelerates date extraction (EXTRACT) in GROUP BY, because the DB can scan the index in chronological order.
+
+> **Note:** The improvement becomes more significant as the table grows larger. With ~40,000+ records, the difference in execution times is noticeable.
+
+---
+
+# Phase C — Integration Between Systems (Customer DB & Orders DB)
+
+## DSD and ERD Diagrams
 ![ERD](images/combined.png)
 ![DSD](images/combinedDSD.png)
 
-## החלטות שנעשו בשלב האינטגרציה
-1. **שימוש ב-Foreign Data Wrapper (FDW):** במקום לאחד את המסדים למסד אחד ולשבור את ארכיטקטורת המיקרו-שירותים, הוחלט להשתמש ב-FDW המאפשר לשאילתות במסד הלקוחות לגשת לנתונים במסד ההזמנות מרחוק.
-2. **מודל הרשאות מוגבל (Least Privilege):** הוחלט ליצור משתמש ייעודי לקריאה בלבד (`customer_team_reader`) במסד ההזמנות. משתמש זה קיבל הרשאה אך ורק לעמודות שאינן רגישות (לדוגמה, הסתרת עמודת `tax` במסך הלקוחות).
-3. **קשר לוגי (Soft Key) ומחיקות רכות (Soft Deletes):** מכיוון שלא ניתן לאכוף Foreign Key פיזי בין מסדים שונים, הוגדר קשר לוגי בין `customer_id` שבטבלת ה-ORDER לטבלת ה-CUSTOMER. כדי להבטיח שלמות נתונים, הוספנו מנגנון "מחיקה רכה" בעזרת טריגר המעדכן את עמודת `deleted_at` ומונע מחיקה פיזית של לקוחות, וכך נמנע יצירת יתומים (Orphans). 
-4. **הזנת נתונים חסרים (Backfill):** נמצאו הזמנות יתומות במסד ההזמנות שלא היה להן לקוח מתאים. הוחלט ליצור סקריפט אוטומטי שממלא נתוני לקוחות "דמי" (Dummy) כדי לתקן את ימות הנתונים ההיסטוריים.
+## Decisions Made During the Integration Phase
+1. **Using Foreign Data Wrapper (FDW):** Instead of merging the databases into one and breaking the microservices architecture, it was decided to use FDW, which allows queries in the customer database to access data in the orders database remotely.
+2. **Least Privilege Permission Model:** It was decided to create a dedicated read-only user (`customer_team_reader`) in the orders database. This user was granted permission only to non-sensitive columns (e.g., the `tax` column is hidden from the customer-side view).
+3. **Soft Key and Soft Deletes:** Since a physical Foreign Key cannot be enforced between separate databases, a logical relationship was defined between `customer_id` in the ORDER table and the CUSTOMER table. To ensure data integrity, a "soft delete" mechanism was added using a trigger that updates the `deleted_at` column and prevents physical deletion of customers, thus preventing the creation of orphan records.
+4. **Backfill:** Orphaned orders were found in the orders database that had no corresponding customer. It was decided to create an automatic script that populates "dummy" customer data to fix historical data integrity.
 
-## הסבר מילולי של התהליך והפקודות
-תהליך האינטגרציה חולק למספר שלבים שנשמרו בקובץ `Integrate.sql`:
+## Verbal Explanation of the Process and Commands
+The integration process was divided into several steps saved in the `Integrate.sql` file:
 
-1. **הגדרת החיבור:** הרצת הפקודות במסד הלקוחות כדי להגדיר את שרת ההזמנות כיעד:
+1. **Defining the Connection:** Running commands in the customer database to configure the orders server as a remote target:
 ```sql
 CREATE EXTENSION IF NOT EXISTS postgres_fdw;
 
@@ -1023,7 +1023,7 @@ FOREIGN DATA WRAPPER postgres_fdw
 OPTIONS (host 'db2', port '5432', dbname 'Orders_db2');
 ```
 
-2. **ייבוא סכמות:** ייבוא הטבלאות ממסד ההזמנות לתוך סכמה חדשה במסד הלקוחות:
+2. **Importing Schemas:** Importing tables from the orders database into a new schema in the customer database:
 ```sql
 CREATE SCHEMA IF NOT EXISTS remote_orders;
 
@@ -1031,22 +1031,22 @@ IMPORT FOREIGN SCHEMA public
 FROM SERVER orders_server INTO remote_orders;
 ```
 
-3. **אבטחה:** הרצת הרשאות קריאה ספציפיות במסד ההזמנות, ולאחר מכן הגדרת מיפוי משתמשים במסד הלקוחות:
-**במסד ההזמנות (Provider):**
+3. **Security:** Running specific read permissions in the orders database, then configuring user mappings in the customer database:
+**In the Orders Database (Provider):**
 ```sql
 CREATE USER customer_team_reader WITH PASSWORD 'reader_pass';
 GRANT USAGE ON SCHEMA public TO customer_team_reader;
 GRANT SELECT (order_id, table_id, customer_id, order_time, order_status) ON "ORDER" TO customer_team_reader;
 GRANT SELECT (bill_id, order_id, final_amount, bill_time) ON bill TO customer_team_reader;
 ```
-**במסד הלקוחות (Consumer):**
+**In the Customer Database (Consumer):**
 ```sql
 CREATE USER MAPPING FOR "MyUser"
 SERVER orders_server
 OPTIONS (user 'customer_team_reader', password 'reader_pass');
 ```
 
-4. **טריגר למחיקה רכה:** הוספת עמודת `deleted_at` לטבלת הלקוחות והפעלת פונקציית טריגר המונעת מחיקה פיזית ומונעת הזמנות יתומות:
+4. **Soft Delete Trigger:** Adding a `deleted_at` column to the customer table and activating a trigger function that prevents physical deletion and prevents orphaned orders:
 ```sql
 ALTER TABLE customer ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP NULL;
 
@@ -1066,11 +1066,11 @@ BEFORE DELETE ON customer
 FOR EACH ROW EXECUTE FUNCTION soft_delete_customer();
 ```
 
-## מבטים ושאילתות (Views & Queries)
+## Views and Queries
 
-### מבט 1: סיכום נאמנות לקוחות (מנקודת המבט של מחלקת הלקוחות המקורית)
-**תיאור:** מבט המחבר בין טבלת `customer` לטבלת `loyalty` (שתי טבלאות מקומיות במסד הלקוחות). מציג את נתוני הקשר של הלקוח יחד עם הסטטוס הפעיל שלו, סך הנקודות והרמה שלו.
-**קוד יצירת המבט:**
+### View 1: Customer Loyalty Summary (from the perspective of the original customer department)
+**Description:** A view connecting the `customer` table to the `loyalty` table (two local tables in the customer database). Displays customer contact details along with their active status, total points, and tier.
+**View creation code:**
 ```sql
 CREATE OR REPLACE VIEW v_customer_loyalty_summary AS
 SELECT 
@@ -1084,40 +1084,40 @@ SELECT
 FROM customer c
 JOIN loyalty l ON c.customer_id = l.customer_id;
 ```
-**שליפת נתונים:**
+**Data retrieval:**
 ```sql
 SELECT * FROM v_customer_loyalty_summary LIMIT 10;
 ```
 ![alt text](images/view1.png)
 
-#### שאילתא 1.1: מציאת לקוחות פעילים עם מעל 100 נקודות
-**תיאור:** מסננת את המבט ומציגה רק לקוחות שהם פעילים וצברו מעל 100 נקודות נאמנות.
-**קוד השאילתא:**
+#### Query 1.1: Find Active Customers with Over 100 Points
+**Description:** Filters the view to display only customers who are active and have accumulated more than 100 loyalty points.
+**Query code:**
 ```sql
 SELECT first_name, last_name, points 
 FROM v_customer_loyalty_summary 
 WHERE points > 100 AND is_active = 1;
 ```
-**פלט:** מציגה רשימת שמות ונקודות.
+**Output:** Displays a list of names and points.
 ![alt text](images/view1-1.png)
 
-#### שאילתא 1.2: חישוב ממוצע נקודות לפי רמה
-**תיאור:** מבצעת קיבוץ (GROUP BY) על המבט כדי לחשב את ממוצע הנקודות בכל רמת נאמנות (tier_id).
-**קוד השאילתא:**
+#### Query 1.2: Calculate Average Points by Tier
+**Description:** Performs a GROUP BY on the view to calculate the average points in each loyalty tier (tier_id).
+**Query code:**
 ```sql
 SELECT tier_id, AVG(points) as avg_points 
 FROM v_customer_loyalty_summary 
 GROUP BY tier_id 
 ORDER BY tier_id;
 ```
-**פלט:** מציגה מזהה רמה וממוצע נקודות.
+**Output:** Displays tier ID and average points.
 ![alt text](images/view1-2.png)
 
 ---
 
-### מבט 2: סיכום חשבונות הזמנה (מנקודת המבט של מחלקת ההזמנות)
-**תיאור:** מבט המחבר בין טבלת `ORDER` לטבלת `bill` (שתיהן ממסד ההזמנות). מספק סיכום של סטטוס ההזמנה, התשלום הכולל, הנחות והסכום הסופי לתשלום.
-**קוד יצירת המבט:**
+### View 2: Order Billing Summary (from the perspective of the orders department)
+**Description:** A view connecting the `ORDER` table to the `bill` table (both from the orders database). Provides a summary of order status, total payment, discounts, and final amount due.
+**View creation code:**
 ```sql
 CREATE OR REPLACE VIEW v_order_billing_summary AS
 SELECT 
@@ -1131,39 +1131,39 @@ FROM "ORDER" o
 JOIN bill b ON o.order_id = b.order_id;
 
 ```
-**שליפת נתונים:**
+**Data retrieval:**
 ```sql
 SELECT * FROM v_order_billing_summary LIMIT 10;
 ```
 ![alt text](images/view2.png)
 
-#### שאילתא 2.1: ממוצע סכום סופי להזמנות שהושלמו
-**תיאור:** מפעילה פונקציית אגרגציה על המבט כדי למצוא את ההכנסה הממוצעת להזמנה מתוך אלו שהושלמו בהצלחה.
-**קוד השאילתא:**
+#### Query 2.1: Average Final Amount for Completed Orders
+**Description:** Applies an aggregate function on the view to find the average revenue per order among those that were successfully completed.
+**Query code:**
 ```sql
 SELECT AVG(final_amount) as avg_completed_amount 
 FROM v_order_billing_summary 
 WHERE order_status = 'Completed';
 ```
-**פלט:** מציגה ערך ממוצע כספי.
+**Output:** Displays a monetary average value.
 ![alt text](images/view2-1.png)
 
 
-#### שאילתא 2.2: איתור הזמנות עם הנחות
-**תיאור:** מסננת את המבט ומציגה רק הזמנות שבהן סכום ההנחה (discount_amount) גדול מאפס.
-**קוד השאילתא:**
+#### Query 2.2: Find Orders with Discounts
+**Description:** Filters the view to display only orders where the discount amount (discount_amount) is greater than zero.
+**Query code:**
 ```sql
 SELECT order_id, total_amount, discount_amount, final_amount 
 FROM v_order_billing_summary 
 WHERE discount_amount > 0;
 ```
-**פלט:** מציגה את פרטי החשבון המלאים להזמנות המוזלות.
+**Output:** Displays full billing details for discounted orders.
 
 ---
 
-### מבט 3: היסטוריית הזמנות לקוח (שילוב בין-מחלקתי - אינטגרציה)
-**תיאור:** מבט המדגים את האינטגרציה המוצלחת! הוא מחבר את טבלת `customer` (ממסד הלקוחות) עם טבלת `remote_orders."ORDER"` (ממסד ההזמנות המרוחק דרך ה-FDW). מציג אילו לקוחות ביצעו אילו הזמנות בזמן אמת.
-**קוד יצירת המבט:**
+### View 3: Customer Order History (Cross-Departmental Integration)
+**Description:** A view demonstrating the successful integration! It connects the `customer` table (from the customer database) with the `remote_orders."ORDER"` table (from the remote orders database via FDW). Displays which customers placed which orders in real time.
+**View creation code:**
 ```sql
 CREATE OR REPLACE VIEW v_cross_db_customer_orders AS
 SELECT 
@@ -1176,52 +1176,52 @@ SELECT
 FROM customer c
 JOIN remote_orders."ORDER" o ON c.customer_id = o.customer_id;
 ```
-**שליפת נתונים:**
+**Data retrieval:**
 ```sql
 SELECT * FROM v_cross_db_customer_orders LIMIT 10;
 ```
 ![alt text](images/view3.png)
 
-#### שאילתא 3.1: ספירת הזמנות לכל לקוח
-**תיאור:** מבצעת קיבוץ על בסיס שם הלקוח וסופרת כמה הזמנות קיימות על שמו במערכת ההזמנות המרוחקת.
-**קוד השאילתא:**
+#### Query 3.1: Count Orders per Customer
+**Description:** Performs a GROUP BY based on customer name and counts how many orders exist under their name in the remote orders system.
+**Query code:**
 ```sql
 SELECT first_name, last_name, COUNT(order_id) as total_orders 
 FROM v_cross_db_customer_orders 
 GROUP BY first_name, last_name 
 ORDER BY total_orders DESC;
 ```
-**פלט:** מציגה רשימת לקוחות וסך ההזמנות שביצעו.
+**Output:** Displays a list of customers and their total orders.
 ![alt text](images/view3-1.png)
 
-#### שאילתא 3.2: איתור לקוחות עם הזמנות מבוטלות
-**תיאור:** שולפת מתוך המבט את שמות הלקוחות שסטטוס ההזמנה שלהם במערכת המרוחקת הוגדר כ-'Cancelled'. משתמשת ב-DISTINCT כדי למנוע כפילויות.
-**קוד השאילתא:**
+#### Query 3.2: Find Customers with Cancelled Orders
+**Description:** Retrieves from the view the names of customers whose order status in the remote system has been set to 'Cancelled'. Uses DISTINCT to prevent duplicates.
+**Query code:**
 ```sql
 SELECT DISTINCT first_name, last_name 
 FROM v_cross_db_customer_orders 
 WHERE order_status = 'Cancelled';
 ```
-**פלט:** מציגה שמות לקוחות שיש להם ביטולים.
+**Output:** Displays customer names that have cancellations.
 
 ![alt text](images/view3-2.png)
 
 ---
 
-# שלב ד — תכנות (PL/pgSQL Programming)
+# Phase D — Programming (PL/pgSQL Programming)
 
-בשלב זה נתנסה בכתיבת תוכניות PL/pgSQL על טבלאות בסיס הנתונים שלנו. התוכניות אינן טרוויאליות וכוללות פונקציות, פרוצדורות, טריגרים ותוכניות ראשיות (Routines).
+In this phase we practice writing PL/pgSQL programs on our database tables. The programs are non-trivial and include functions, procedures, triggers, and main routines.
 
-להלן פירוט של שתי התוכניות הראשיות (Main Programs) שפותחו במסגרת שלב זה:
+Below is a detailed breakdown of the two main programs (Main Programs) developed in this phase:
 
-### תוכנית ראשית 1: שגרת תחזוקה יומית (Daily Maintenance Routine)
+### Main Program 1: Daily Maintenance Routine
 
-**תיאור השגרה:**
-שגרה זו משמשת לביצוע פעולות תחזוקה יומיות במערכת הלקוחות והנאמנות. היא מבצעת שתי פעולות עיקריות:
-1. **חישוב ציון משוב ממוצע:** היא מזמנת את הפונקציה `fn_calculate_avg_feedback_score(p_customer_id)` עבור לקוח מספר 1, המחשבת בצורה דינמית את ממוצע הציונים שהלקוח נתן במשובים שלו בעזרת סמן מפורש (Explicit Cursor) מפרמטר.
-2. **עיבוד והענקת תגמולי נאמנות:** היא מזמנת את הפרוצדורה `pr_process_loyalty_rewards()` הסורקת את הלקוחות הפעילים בעזרת סמן (Cursor), ומזהה לקוחות שביצעו מעל 3 הזמנות אך צברו פחות מ-500 נקודות. לקוחות אלו משודרגים ב-100 נקודות בונוס והעסקה מתועדת בטבלת היסטוריית התנועות.
+**Routine Description:**
+This routine is used to perform daily maintenance operations on the customer and loyalty system. It performs two main operations:
+1. **Calculating Average Feedback Score:** It invokes the `fn_calculate_avg_feedback_score(p_customer_id)` function for customer number 1, which dynamically calculates the average of the scores the customer has given in their feedback using an explicit parameterized cursor.
+2. **Processing and Awarding Loyalty Rewards:** It invokes the `pr_process_loyalty_rewards()` procedure, which scans active customers using a cursor and identifies customers who have made more than 3 reservations but accumulated fewer than 500 points. These customers are upgraded by 100 bonus points and the transaction is recorded in the transaction history table.
 
-**קוד התוכנית הראשית (`Maintenance_Routine.sql`):**
+**Main Program Code (`Maintenance_Routine.sql`):**
 ```sql
 DO $$ 
 DECLARE
@@ -1245,14 +1245,14 @@ END $$;
 
 ---
 
-### תוכנית ראשית 2: שגרת הפקת דוחות ופינוי תורים (Reporting Routine)
+### Main Program 2: Reporting and Queue Clearing Routine
 
-**תיאור השגרה:**
-שגרה זו מיועדת להרצה תקופתית עבור הפקת דוחות אינטגרטיביים וטיפול ברשומות פגות תוקף ברשימת ההמתנה. היא מבצעת שתי פעולות עיקריות:
-1. **טיפול בתורים פגי תוקף:** היא מזמנת את הפרוצדורה `pr_resolve_stale_waitlist()` שמאתרת רשומות ברשימת ההמתנה (Waitlist) שהסטטוס שלהן הוא "Waiting" והן ממתינות מעל שעתיים. הפרוצדורה מעבירה את הסטטוס שלהן ל-"Expired" ומפצה את הלקוחות ב-50 נקודות נאמנות כפיצוי על ההמתנה הממושכת.
-2. **הפקת דוח הזמנות חוצה-מסדים (אינטגרטיבי):** היא מזמנת את הפונקציה `fn_get_customer_remote_orders(p_customer_id)` שמחזירה סמן התייחסות (`REFCURSOR`) המצביע על רשימת ההזמנות של הלקוח ממסד הנתונים המרוחק (`Orders_DB`) דרך ה-FDW. התוכנית הראשית פותחת את הסמן בתוך הטרנזקציה, רצה בלולאה על התוצאות, מדפיסה את פרטי כל הזמנה וסכומה הסופי, וסוגרת את הסמן בצורה מבוקרת.
+**Routine Description:**
+This routine is designed to run periodically for generating integrative reports and handling expired waitlist records. It performs two main operations:
+1. **Handling Expired Queues:** It invokes the `pr_resolve_stale_waitlist()` procedure, which locates waitlist records whose status is "Waiting" and have been waiting for more than two hours. The procedure transitions their status to "Expired" and compensates customers with 50 loyalty points as compensation for the extended wait.
+2. **Generating a Cross-Database Order Report (Integrative):** It invokes the `fn_get_customer_remote_orders(p_customer_id)` function, which returns a reference cursor (`REFCURSOR`) pointing to the list of orders for the customer from the remote database (`Orders_DB`) via FDW. The main program opens the cursor within the transaction, loops through the results, prints the details of each order and its final amount, and closes the cursor in a controlled manner.
 
-**קוד התוכנית הראשית (`Reporting_Routine.sql`):**
+**Main Program Code (`Reporting_Routine.sql`):**
 ```sql
 DO $$ 
 DECLARE
@@ -1290,63 +1290,63 @@ END $$;
 
 ---
 
-## שלב ה — אפליקציית ניהול (Web Application)
+## Phase E — Management Application (Web Application)
 
-### הוראות הפעלה
+### Setup Instructions
 
-1. **דרישות מקדימות** — התקינו את החבילות הנדרשות:
+1. **Prerequisites** — Install the required packages:
    ```bash
    pip install flask psycopg2-binary
    ```
 
-2. **הגדרת מסד הנתונים** — ודאו שה-PostgreSQL פועל ושפרטי החיבור ב-`db.py` נכונים (host, port, dbname, user, password).
+2. **Database Configuration** — Make sure PostgreSQL is running and the connection details in `db.py` are correct (host, port, dbname, user, password).
 
-3. **הפעלת האפליקציה** — הריצו מתוך תיקיית `שלב ה`:
+3. **Running the Application** — Run from the `Phase E` directory:
    ```bash
    python app.py
    ```
 
-4. **כניסה למערכת** — פתחו דפדפן בכתובת `http://localhost:5000`  
-   שם משתמש: `admin` | סיסמה: `admin`
+4. **Accessing the System** — Open a browser at `http://localhost:5000`  
+   Username: `admin` | Password: `admin`
 
 ---
 
-### כלים ששימשו לבניית האפליקציה
+### Tools Used to Build the Application
 
-| כלי | תפקיד |
-|-----|--------|
-| **Python 3** | שפת התכנות הראשית |
-| **Flask** | מסגרת Web לבניית השרת וניתוב הנתיבים |
-| **psycopg2** | חיבור Python ↔ PostgreSQL |
-| **Jinja2** | מנוע תבניות HTML (מובנה ב-Flask) |
-| **HTML / CSS / JavaScript** | ממשק משתמש — עיצוב ואינטראקטיביות |
-| **PostgreSQL** | מסד הנתונים הרלציוני |
+| Tool | Role |
+|------|------|
+| **Python 3** | Primary programming language |
+| **Flask** | Web framework for building the server and routing |
+| **psycopg2** | Python ↔ PostgreSQL connection |
+| **Jinja2** | HTML template engine (built into Flask) |
+| **HTML / CSS / JavaScript** | User interface — design and interactivity |
+| **PostgreSQL** | Relational database |
 
 ---
 
-### תמונות מסך של הפעלת האפליקציה
+### Application Screenshots
 
-## מסך כניסה
+## Login Screen
 
 ![alt text](images/loginscreen.png)
 
-## לוח בקרה ושאילתות
+## Dashboard and Queries
 
 ![alt text](images/queries.png)
 
-## הרצת שאילתה
+## Running a Query
 
 ![alt text](images/runq2.png)
 
-## פרוצדורות ופונקציות
+## Procedures and Functions
 
 ![alt text](images/procedures.png)
 
-## ציון משוב
+## Feedback Score
 
 ![alt text](images/feedbackScoreRun.png)
 
-## ממשק CRUD — הוספה ועריכה
+## CRUD Interface — Add and Edit
 
 ![alt text](images/Crud.png)
 
