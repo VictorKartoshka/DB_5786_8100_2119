@@ -60,7 +60,23 @@ async function createRecord(tableName, formEl) {
     const formData = new FormData(formEl);
     const data = Object.fromEntries(formData.entries());
 
-    // Remove empty strings
+    // Check that required fields (those with 'required' attribute) are not empty
+    const requiredInputs = formEl.querySelectorAll('[required]');
+    let hasEmpty = false;
+    requiredInputs.forEach(input => {
+        if (!input.value || input.value.trim() === '') {
+            hasEmpty = true;
+            input.style.borderColor = 'var(--danger)';
+        } else {
+            input.style.borderColor = '';
+        }
+    });
+    if (hasEmpty) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+    }
+
+    // Remove truly optional empty strings (not required fields)
     Object.keys(data).forEach(k => {
         if (data[k] === '') data[k] = null;
     });

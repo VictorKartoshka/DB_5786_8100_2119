@@ -86,12 +86,13 @@ def customers():
 def reservations():
     rows, cols = query_db('''
         SELECT r.reservation_id, c.first_name || ' ' || c.last_name as customer_name,
-               r.datetime, r.party_size, r.special_requests, s.description as status_name,
+               r.datetime::text as datetime, r.party_size, r.special_requests, s.description as status_name,
                r.customer_id, r.status_id
         FROM reservation r
         JOIN customer c ON r.customer_id = c.customer_id
         JOIN status_type s ON r.status_id = s.status_id
         ORDER BY r.datetime DESC
+        LIMIT 200
     ''')
     cust_rows, _ = query_db('SELECT customer_id, first_name, last_name FROM customer WHERE is_active=1 ORDER BY customer_id')
     stat_rows, _ = query_db('SELECT status_id, description FROM status_type ORDER BY status_id')
@@ -120,7 +121,7 @@ def waitlist():
 def feedback():
     rows, cols = query_db('''
         SELECT f.feedback_id, c.first_name || ' ' || c.last_name as customer_name,
-               r.datetime as reservation_date, f.rating, f.comment, f.feedback_date,
+               r.datetime::text as reservation_date, f.rating, f.comment, f.feedback_date,
                f.reservation_id
         FROM feedback f
         JOIN reservation r ON f.reservation_id = r.reservation_id
@@ -128,7 +129,7 @@ def feedback():
         ORDER BY f.feedback_date DESC
     ''')
     res_rows, _ = query_db('''
-        SELECT r.reservation_id, c.first_name || ' ' || c.last_name as customer_name, r.datetime
+        SELECT r.reservation_id, c.first_name || ' ' || c.last_name as customer_name, r.datetime::text as datetime
         FROM reservation r
         JOIN customer c ON r.customer_id = c.customer_id
         ORDER BY r.datetime DESC
@@ -308,7 +309,7 @@ def api_customer_delete():
 def api_reservation_create():
     data = request.json
     required = ['datetime', 'party_size', 'customer_id', 'status_id']
-    if not all(k in data for k in required):
+    if not all(data.get(k) for k in required):
         return jsonify(success=False, error="Missing required fields")
     try:
         execute_db('INSERT INTO reservation (reservation_id, datetime, party_size, special_requests, created_at, customer_id, status_id) VALUES ((SELECT COALESCE(MAX(reservation_id),0)+1 FROM reservation),%s,%s,%s,CURRENT_DATE,%s,%s)', (data['datetime'], data['party_size'], data.get('special_requests', ''), data['customer_id'], data['status_id']))

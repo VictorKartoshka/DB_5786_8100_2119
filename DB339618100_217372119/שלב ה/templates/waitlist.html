@@ -26,7 +26,7 @@
                 <td>{{ w.request_time }}</td>
                 <td>{{ w.est_wait_time }}</td>
                 <td>
-                    <span class="badge {% if w.status_description == 'Completed' %}badge-success{% elif w.status_description == 'Pending' %}badge-warning{% elif w.status_description == 'Cancelled' %}badge-danger{% else %}badge-info{% endif %}">{{ w.status_description }}</span>
+                    <span class="badge {% if w.status_name == 'Completed' %}badge-success{% elif w.status_name == 'Pending' %}badge-warning{% elif w.status_name == 'Cancelled' %}badge-danger{% else %}badge-info{% endif %}">{{ w.status_name }}</span>
                 </td>
                 <td class="actions">
                     <button class="btn btn-sm" onclick="editEntry({{ w.waitlist_id }})">✏️ Edit</button>

@@ -30,7 +30,7 @@
                     <td>{{ l.customer_name }}</td>
                     <td>{{ l.points }}</td>
                     <td>
-                        <span class="badge {% if l.tier_level == 'Platinum' %}badge-platinum{% elif l.tier_level == 'Gold' %}badge-gold{% elif l.tier_level == 'Silver' %}badge-silver{% elif l.tier_level == 'Bronze' %}badge-bronze{% else %}badge-info{% endif %}">{{ l.tier_level }}</span>
+                        <span class="badge {% if l.tier_name == 'Platinum' %}badge-platinum{% elif l.tier_name == 'Gold' %}badge-gold{% elif l.tier_name == 'Silver' %}badge-silver{% elif l.tier_name == 'Bronze' %}badge-bronze{% else %}badge-info{% endif %}">{{ l.tier_name }}</span>
                     </td>
                     <td>{{ l.last_updated }}</td>
                     <td class="actions">
@@ -87,9 +87,9 @@
                 {% for tr in transactions %}
                 <tr>
                     <td>{{ tr.customer_name }}</td>
-                    <td>{{ tr.reason_description }}</td>
+                    <td>{{ tr.reason_name }}</td>
                     <td class="{% if tr.points_change > 0 %}points-positive{% else %}points-negative{% endif %}">{% if tr.points_change > 0 %}+{% endif %}{{ tr.points_change }}</td>
-                    <td>{{ tr.transaction_date }}</td>
+                    <td>{{ tr.created_at }}</td>
                     <td class="actions">
                         <button class="btn btn-sm" onclick="editTransaction(this.dataset.id)" data-id="{{ tr.transaction_id }}">✏️ Edit</button>
                         <button class="btn btn-sm btn-danger" onclick="deleteTransaction(this.dataset.id)" data-id="{{ tr.transaction_id }}">🗑️ Delete</button>
